@@ -1,0 +1,6 @@
+#ifndef STYLE_H
+#define STYLE_H
+
+#define STYLESHEET R"(QLabel {     font-size: 200px;     font-weight: bold; }  QPushButton {     font-size: 50px;     border: 2px solid white;     border-radius: 0px;     min-width: 150px; }  QPushButton:hover {     background: white;     color: black; } )"
+
+#endif  // STYLE_H

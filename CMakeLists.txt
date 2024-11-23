@@ -13,33 +13,27 @@ find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets OpenGLWidgets OpenGL)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets OpenGLWidgets OpenGL)
 
 set(PROJECT_SOURCES
-        src/main.cpp
-        src/mainwindow.cpp
-        src/mainwindow.h
-        src/mainwindow.ui
+    src/main.cpp
+    src/app.h
+    src/app.cpp
+    src/menu.h
+    src/menu.cpp
+    src/styles/menu.qss
+    src/resources.qrc
+    src/style.h
 )
+
+file(READ "${CMAKE_SOURCE_DIR}/src/styles/menu.qss" QSS_CONTENT)
+string(REPLACE "\n" " " QSS_CONTENT "${QSS_CONTENT}")
+string(REPLACE "\"" "\\\"" QSS_CONTENT "${QSS_CONTENT}")
+set(STYLESHEET "${QSS_CONTENT}")
+configure_file(${CMAKE_SOURCE_DIR}/src/styles/style_template.h.in ${CMAKE_SOURCE_DIR}/src/style.h @ONLY)
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(blocks
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
     )
-# Define target properties for Android with Qt 6 as:
-#    set_property(TARGET blocks APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
-#                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
-# For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
-else()
-    if(ANDROID)
-        add_library(blocks SHARED
-            ${PROJECT_SOURCES}
-        )
-# Define properties for Android with Qt 5 after find_package() calls as:
-#    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
-    else()
-        add_executable(blocks
-            ${PROJECT_SOURCES}
-        )
-    endif()
 endif()
 
 target_link_libraries(blocks PRIVATE
@@ -48,9 +42,6 @@ target_link_libraries(blocks PRIVATE
     Qt${QT_VERSION_MAJOR}::OpenGLWidgets
 )
 
-# Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
-# If you are developing for iOS or macOS you should consider setting an
-# explicit, fixed bundle identifier manually though.
 if(${QT_VERSION} VERSION_LESS 6.1.0)
   set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.example.blocks)
 endif()

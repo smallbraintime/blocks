@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>styles/menu.qss</file>
+        <file>styles/style_template.h.in</file>
+    </qresource>
+</RCC>
