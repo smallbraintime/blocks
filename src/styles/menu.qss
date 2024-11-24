@@ -3,7 +3,7 @@ QLabel {
     font-weight: bold;
 }
 
-QPushButton {
+QPushButton, QPushButton:focus {
     font-size: 50px;
     border: 2px solid white;
     border-radius: 0px;
@@ -14,3 +14,4 @@ QPushButton:hover {
     background: white;
     color: black;
 }
+

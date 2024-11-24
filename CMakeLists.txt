@@ -18,8 +18,8 @@ set(PROJECT_SOURCES
     src/app.cpp
     src/menu.h
     src/menu.cpp
-    src/styles/menu.qss
-    src/resources.qrc
+    src/game.h
+    src/game.cpp
     src/style.h
 )
 
@@ -33,6 +33,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(blocks
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
+        src/styles/menu.qss
     )
 endif()
 
