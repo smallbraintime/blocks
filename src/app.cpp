@@ -6,39 +6,30 @@
 
 #include "style.h"
 
-App::App() {
-    const QVector<QPair<const char*, std::function<void(App&)>>> buttonCallbacks = {
-        {"Load", [&](App& app){
-             //const auto filePath = QFileDialog::getOpenFileName(this, "Choose file to load", QDir::homePath(), "XML Files (*.xml)");
-         }},
-        {"New", [&](App& app){
-             //const auto dirPath = QFileDialog::getExistingDirectory(this, "Select Directory", QDir::homePath(), QFileDialog::ShowDirsOnly);
-             mStackedWidget->setCurrentWidget(mGame);
-        }},
-        {"Exit", [&](App& app){ QApplication::quit(); }}
-    };
-    mMenu = new Menu("BLOCKS", buttonCallbacks, *this);
-    mMenu->setStyleSheet(STYLESHEET);
+App::App(int& argc, char** argv) : QApplication(argc, argv) {
+    m_menu = new Menu();
+    m_editor = new Editor();
+    m_startPage = new QLabel("BLOCKS");
+    m_startPage->setAlignment(Qt::AlignCenter);
+    m_startPage->setStyleSheet(STYLESHEET);
 
-    mGame = new Game();
-    //connect(mGame, &Game::backToMenu, this, &App::onBackToMenu);
+    m_mainWidgets = new QStackedWidget();
+    m_mainWidgets->addWidget(m_startPage);
+    m_mainWidgets->addWidget(m_editor);
+    m_mainWidgets->setCurrentWidget(m_startPage);
 
-    mStackedWidget = new QStackedWidget(this);
-    mStackedWidget->addWidget(mMenu);
-    mStackedWidget->addWidget(mGame);
-
-    mWindow.setWindowTitle("blocks");
-    mWindow.setGeometry(0, 0, mWindow.maximumWidth(), mWindow.maximumHeight());
-    mWindow.setCentralWidget(mStackedWidget);
-    mWindow.show();
+    m_window.setMenuBar(m_menu);
+    m_window.setCentralWidget(m_mainWidgets);
+    m_window.setWindowTitle("blocks");
+    m_window.setGeometry(0, 0, m_window.maximumWidth(), m_window.maximumHeight());
+    m_window.show();
 }
 
-App::~App() {
-    delete mGame;
-    delete mMenu;
-    delete mStackedWidget;
+App* App::instance() {
+    static auto app = static_cast<App*>(QCoreApplication::instance());
+    return app;
 }
 
-void App::onBackToMenu() {
-    mStackedWidget->setCurrentWidget(mMenu);
+void App::openEditor() {
+    m_mainWidgets->setCurrentWidget(m_editor);
 }

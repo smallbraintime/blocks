@@ -1,23 +1,39 @@
 #pragma once
 
-#include <QWidget>
-#include <QPushButton>
-#include <QLabel>
-#include <QVBoxLayout>
+#include <QMenuBar>
+#include <QMenu>
+#include <QAction>
 
-#include "app.h"
-class App;
-
-class Menu : public QWidget
+class Menu : public QMenuBar
 {
     Q_OBJECT
 
 public:
-    Menu(const QString& title, const QVector<QPair<const char*, std::function<void(App&)>>>& buttonCallbacks, App& app);
-    ~Menu();
+    Menu();
+    void hideMenuBar();
+    void showMenuBar();
 
-private:
-    QLabel* mTitle;
-    QVBoxLayout* mLayout;
-    QVector<QPushButton*> mOptions;
+public:
+    QMenu* m_fileMenu;
+    QMenu* m_editMenu;
+    QMenu* m_helpMenu;
+    QAction* m_newAction;
+    QAction* m_openAction;
+    QAction* m_saveAction;
+    QAction* m_exitAction;
+    QAction* m_undoAction;
+    QAction* m_redoAction;
+    QAction* m_copyAction;
+    QAction* m_cutAction;
+    QAction* m_pasteAction;
+    QAction* m_modifyAction;
+    QAction* m_selectAllAction;
+    QAction* m_clearSelectionAction;
+    QAction* m_deleteAction;
+    QAction* m_keyMapAction;
+    QAction* m_aboutAction;
+
+    void createFileMenu();
+    void createEditMenu();
+    void createHelpMenu();
 };

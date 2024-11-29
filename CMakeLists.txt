@@ -18,9 +18,10 @@ set(PROJECT_SOURCES
     src/app.cpp
     src/menu.h
     src/menu.cpp
-    src/game.h
-    src/game.cpp
+    src/editor.h
+    src/editor.cpp
     src/style.h
+    src/resources.qrc
 )
 
 file(READ "${CMAKE_SOURCE_DIR}/src/styles/menu.qss" QSS_CONTENT)
@@ -33,7 +34,6 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(blocks
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
-        src/styles/menu.qss
     )
 endif()
 

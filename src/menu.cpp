@@ -1,26 +1,94 @@
 #include "menu.h"
 
-Menu::Menu(const QString& title, const QVector<QPair<const char*, std::function<void(App&)>>>& buttonCallbacks, App& app) {
-    mLayout = new QVBoxLayout(this);
-    mLayout->setAlignment(Qt::AlignCenter);
+#include <QCoreApplication>
 
-    mTitle = new QLabel(title, this);
-    mTitle->setAlignment(Qt::AlignCenter);
-    mLayout->addWidget(mTitle, 0, Qt::AlignCenter);
+#include "app.h"
 
-    for (const auto& button : buttonCallbacks) {
-        auto newButton = new QPushButton(button.first, this);
-        mOptions.emplaceBack(newButton);
-        connect(newButton, &QPushButton::clicked, this, [callback = button.second, &app]() {
-            callback(app);
-        });
-        mLayout->addWidget(newButton);
-    }
-    setLayout(mLayout);
+Menu::Menu() {
+    createFileMenu();
+    createEditMenu();
+    createHelpMenu();
+    addMenu(m_fileMenu);
+    addMenu(m_editMenu);
+    addMenu(m_helpMenu);
 }
 
-Menu::~Menu() {
-    delete mTitle;
-    for (const auto& button : mOptions) delete button;
-    delete mLayout;
+void Menu::hideMenuBar()
+{
+    setVisible(false);
+}
+
+void Menu::showMenuBar()
+{
+    setVisible(true);
+}
+
+
+void Menu::createFileMenu() {
+    m_openAction = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::DocumentNew),
+                               tr("&Open"), this);
+    connect(m_openAction, &QAction::triggered, App::instance(), &App::openEditor);
+    m_newAction = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::DocumentOpen),
+                              tr("&New"), this);
+    m_saveAction = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::DocumentSave),
+                               tr("&Save"), this);
+    m_exitAction = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::ApplicationExit),
+                               tr("&Exit"), this);
+    connect(m_exitAction, &QAction::triggered, qApp, &QCoreApplication::quit);
+    m_fileMenu = new QMenu(tr("&File"));
+    m_fileMenu->addActions({m_openAction, m_newAction, m_saveAction, m_exitAction});
+}
+
+void Menu::createEditMenu() {
+    m_undoAction = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::EditUndo),
+                               tr("&Undo"), this);
+    m_redoAction = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::EditRedo),
+                               tr("&Redo"), this);
+    m_copyAction = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::EditCopy),
+                               tr("&Copy"), this);
+    m_cutAction = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::EditCut),
+                              tr("&Cut"), this);
+    m_pasteAction = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::EditPaste),
+                                tr("&Paste"), this);
+    m_modifyAction = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::DocumentProperties),
+                                tr("&Modify"), this);
+    m_selectAllAction = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::EditSelectAll),
+                                tr("&Select All"), this);
+    m_clearSelectionAction = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::EditClear),
+                                    tr("&Clear Selection"), this);
+    m_deleteAction = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::EditDelete),
+                                    tr("&Delete"), this);
+    m_editMenu = new QMenu(tr("&Edit"));
+    m_editMenu->addActions({m_undoAction, m_redoAction, m_copyAction, m_cutAction, m_pasteAction, m_modifyAction, m_selectAllAction, m_clearSelectionAction, m_deleteAction});
+}
+
+void Menu::createHelpMenu() {
+    m_keyMapAction = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::InputKeyboard),
+                                     tr("&Key Map"), this);
+    m_aboutAction = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::HelpAbout),
+                                tr("&About"), this);
+    m_helpMenu = new QMenu(tr("&Help"));
+    m_helpMenu->addActions({m_keyMapAction, m_aboutAction});
+
+    auto* youDiedAction = new QAction(tr("&You Died"));
+    auto* secretEndingMenu = new QMenu("Secret Ending");
+    secretEndingMenu->addAction(youDiedAction);
+    auto* forestMenu = new QMenu("Forest");
+    forestMenu->addAction(youDiedAction);
+    auto* cityMenu = new QMenu("City");
+    cityMenu->addAction(youDiedAction);
+    auto* goMenu = new QMenu("Go to");
+    goMenu->addMenu(cityMenu);
+    goMenu->addMenu(forestMenu);
+    goMenu->addMenu(secretEndingMenu);
+    auto* humanMenu = new QMenu("Human");
+    humanMenu->addMenu(goMenu);
+    auto* unhumanMenu = new QMenu("Unhuman");
+    unhumanMenu->addMenu(goMenu);
+    auto* classChoiceMenu = new QMenu("Choose your class");
+    classChoiceMenu->addMenu(humanMenu);
+    classChoiceMenu->addMenu(unhumanMenu);
+    auto* rpgMenu = new QMenu("Rpg");
+    rpgMenu->addMenu(classChoiceMenu);
+    m_helpMenu->addMenu(rpgMenu);
 }

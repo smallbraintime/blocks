@@ -1,27 +1,27 @@
 #pragma once
 
-#include <QWidget>
 #include <QMainWindow>
+#include <QLabel>
+#include <QMainWindow>
+#include <QApplication>
 #include <QStackedWidget>
 
-#include "game.h"
 #include "menu.h"
-class Menu;
+#include "editor.h"
 
-class App : QWidget
+class App : public QApplication
 {
-    Q_OBJECT
-
 public:
-    App();
-    ~App();
+    App(int& argc, char** argv);
+    static App* instance();
 
 private:
-    QMainWindow mWindow;
-    QStackedWidget *mStackedWidget;
-    Menu* mMenu;
-    Game* mGame;
+    QMainWindow m_window;
+    QStackedWidget* m_mainWidgets;
+    Menu* m_menu;
+    Editor* m_editor;
+    QLabel* m_startPage;
 
-private slots:
-    void onBackToMenu();
+public slots:
+    void openEditor();
 };
