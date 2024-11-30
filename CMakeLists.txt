@@ -22,6 +22,8 @@ set(PROJECT_SOURCES
     src/editor.cpp
     src/style.h
     src/resources.qrc
+    src/shaders/basic.frag
+    src/shaders/basic.vert
 )
 
 file(READ "${CMAKE_SOURCE_DIR}/src/styles/menu.qss" QSS_CONTENT)

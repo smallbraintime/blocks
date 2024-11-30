@@ -26,8 +26,7 @@ App::App(int& argc, char** argv) : QApplication(argc, argv) {
 }
 
 App* App::instance() {
-    static auto app = static_cast<App*>(QCoreApplication::instance());
-    return app;
+    return static_cast<App*>(QCoreApplication::instance());
 }
 
 void App::openEditor() {

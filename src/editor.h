@@ -4,13 +4,17 @@
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLBuffer>
 #include <QOpenGLShaderProgram>
+#include <QOpenGLContext>
+#include <QTimer>
+#include <QOpenGLFunctions>
 
-class Editor : public QOpenGLWidget
+class Editor : public QOpenGLWidget, protected QOpenGLFunctions
 {
     Q_OBJECT
 
 public:
     Editor();
+    ~Editor();
 
 protected:
     virtual void initializeGL() override;
@@ -18,7 +22,10 @@ protected:
     virtual void paintGL() override;
 
 private:
+    QOpenGLContext m_context;
     QOpenGLVertexArrayObject m_vao;
-    QOpenGLBuffer m_vertexBufferObject;
+    QOpenGLBuffer m_vbo;
+    QOpenGLBuffer m_ebo;
     QOpenGLShaderProgram* m_program;
+    void repaint();
 };
