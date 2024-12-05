@@ -5,8 +5,12 @@
 #include <QOpenGLBuffer>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLContext>
-#include <QTimer>
 #include <QOpenGLFunctions>
+#include <QOpenGLTexture>
+#include <QOpenGLFunctions>
+#include <QVector>
+#include <QVector3D>
+
 
 class Editor : public QOpenGLWidget, protected QOpenGLFunctions
 {
@@ -27,5 +31,7 @@ private:
     QOpenGLBuffer m_vbo;
     QOpenGLBuffer m_ebo;
     QOpenGLShaderProgram* m_program;
+    QOpenGLTexture* m_texture;
+    QVector<QVector3D> positions;
     void repaint();
 };

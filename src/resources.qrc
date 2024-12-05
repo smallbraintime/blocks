@@ -3,6 +3,7 @@
     <qresource prefix="/">
         <file>shaders/basic.vert</file>
         <file>shaders/basic.frag</file>
+        <file>assets/texture.jpg</file>
     </qresource>
 </RCC>
 
