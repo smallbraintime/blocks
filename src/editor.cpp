@@ -7,7 +7,12 @@
 #include <QImageReader>
 #include <QMatrix4x4>
 
+#include "app.h"
+
 Editor::Editor() {
+    setFocusPolicy(Qt::StrongFocus);
+    cursor().setPos(mapToGlobal(rect().center()));
+    setMouseTracking(true);
 }
 
 Editor::~Editor() {
@@ -33,7 +38,7 @@ void Editor::initializeGL() {
         qDebug() << "Fragment shader errors :\n" << m_program->log();
     }
     if (!m_program->link())
-        qDebug() << "Shader linker errors :\n" << m_program->log();
+        qDebug() << "Shader linker errors :\n" <<  m_program->log();
 
     float vertices[] = {
         -1.0f,  1.0f, 0.99f,  1.0f, 0.0f, 0.0f,  0.0f, 1.0f,
@@ -150,10 +155,15 @@ void Editor::initializeGL() {
     for (size_t i = 0; i < 10; ++i) {
         QRandomGenerator generator;
         generator = generator.securelySeeded();
-        const auto x = float(generator.generateDouble() * 2.0f - 1.0f);
-        const auto y = float(generator.generateDouble() * 2.0f - 1.0f);
-        positions.emplace_back(x, y, -3);
+        const auto x = float(generator.generateDouble() * 5.0f - 1.0f);
+        const auto y = float(generator.generateDouble() * 5.0f - 1.0f);
+        const auto z = float(generator.generateDouble() * 5.0f - 1.0f);
+        m_positions.emplace_back(x, y, z);
     }
+
+    m_cameraPos = {0.0f, 0.0f,  3.0f};
+    m_cameraFront = {0.0f, 0.0f, -1.0f};
+    m_cameraUp = {0.0f, 1.0f,  0.0f};
 }
 
 void Editor::resizeGL(int w, int h) {
@@ -184,20 +194,22 @@ void Editor::repaint() {
     m_program->setUniformValue("isTextured", false);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-    for (const auto& pos : positions) {
+    for (const auto& pos : m_positions) {
         QMatrix4x4 model;
-        model.rotate(-45, 1, 0, 0);
+        model.rotate(20.f * m_positions.size(), 0.0f, 0.0f, 0.0f);
+        model.translate(pos);
         QMatrix4x4 view;
         view.translate(pos);
+        view.lookAt(m_cameraPos, m_cameraPos + m_cameraFront, m_cameraUp);
         QMatrix4x4 projection;
-        projection.perspective(45, width() / height(), 0.1, 100);
+        projection.perspective(m_fov, width() / height(), 0.1, 100);
         m_program->setUniformValue("model", model);
         m_program->setUniformValue("view", view);
         m_program->setUniformValue("projection", projection);
         QMatrix4x4 trans;
-        trans.scale(sin(y));
-        trans.translate(cos(y), sin(y), 0);
-        trans.rotate(degree, cos(y), sin(y), sin(y));
+        //trans.scale(sin(y));
+        //trans.translate(cos(y), sin(y), 0);
+        //trans.rotate(degree, cos(y), sin(y), sin(y));
         m_program->setUniformValue("isTextured", true);
         m_program->setUniformValue("trans", trans);
         m_texture->bind();
@@ -214,5 +226,97 @@ void Editor::repaint() {
     ++degree;
     y += direction;
     direction = y == 1 ? -0.01 : 0.01;
+
+    cursor().setPos(mapToGlobal(rect().center()));
+    m_lastx = mapToGlobal(rect().center()).x();
+    m_lasty = mapToGlobal(rect().center()).y();
+
+    qint64 currentFrame = QDateTime::currentMSecsSinceEpoch();
+    m_deltaTime = (currentFrame - m_lastFrame) / 1000.0f;
+    m_lastFrame = currentFrame;
+
     update();
+}
+
+void Editor::keyPressEvent(QKeyEvent *event) {
+    const float cameraSpeed = 5.5 * m_deltaTime;
+    switch (event->key()) {
+    case Qt::Key_W: {
+        m_cameraPos += cameraSpeed * m_cameraFront;
+        break;
+    }
+    case Qt::Key_S: {
+        m_cameraPos -= cameraSpeed * m_cameraFront;
+        break;
+    }
+    case Qt::Key_A: {
+        m_cameraPos -= QVector3D::crossProduct(m_cameraFront, m_cameraUp).normalized() * cameraSpeed;
+        break;
+    }
+    case Qt::Key_D: {
+        m_cameraPos += QVector3D::crossProduct(m_cameraFront, m_cameraUp).normalized() * cameraSpeed;
+        break;
+    }
+    case Qt::Key_Escape: {
+        App::instance()->setOverrideCursor( QCursor( Qt::ArrowCursor ) );
+        clearFocus();
+        break;
+    }
+    }
+}
+
+void Editor::mouseMoveEvent(QMouseEvent *event) {
+    float xPos = cursor().pos().x();
+    float yPos = cursor().pos().y();
+
+    if (m_firstMouse) {
+        m_lastx = xPos;
+        m_lasty = yPos;
+        m_firstMouse = false;
+    }
+
+    float xoffset = xPos - m_lastx;
+    float yoffset = m_lasty - yPos;
+    m_lastx = xPos;
+    m_lasty = yPos;
+
+    float sensitivity = 0.05f;
+    xoffset *= sensitivity;
+    yoffset *= sensitivity;
+
+    m_yaw += xoffset;
+    m_pitch += yoffset;
+
+    if(m_pitch > 89.0f)
+        m_pitch = 89.0f;
+    if(m_pitch < -89.0f)
+        m_pitch = -89.0f;
+
+    QVector3D dir;
+    dir.setX(cos(m_yaw) * cos(m_pitch));
+    dir.setY(sin(m_pitch));
+    dir.setZ(sin(m_yaw) * cos(m_pitch));
+    m_cameraFront = dir.normalized();
+}
+
+void Editor::mousePressEvent(QMouseEvent *event) {
+    App::instance()->setOverrideCursor( QCursor( Qt::BlankCursor ) );
+    setFocus();
+}
+
+void Editor::focusOutEvent(QFocusEvent *event) {
+    if (event->reason() == Qt::MouseFocusReason) {
+        event->ignore();
+    } else {
+        QWidget::focusOutEvent(event);
+    }
+}
+
+void Editor::wheelEvent(QWheelEvent *event) {
+    m_fov -=  event->angleDelta().y() / 120;
+
+    if (m_fov < 1.0f)
+        m_fov = 1.0f;
+    if (m_fov > 120.0f)
+        m_fov = 120.0f;
 }

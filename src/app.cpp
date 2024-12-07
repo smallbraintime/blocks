@@ -16,7 +16,7 @@ App::App(int& argc, char** argv) : QApplication(argc, argv) {
     m_mainWidgets = new QStackedWidget();
     m_mainWidgets->addWidget(m_startPage);
     m_mainWidgets->addWidget(m_editor);
-    m_mainWidgets->setCurrentWidget(m_startPage);
+    m_mainWidgets->setCurrentWidget(m_editor);
 
     m_window.setMenuBar(m_menu);
     m_window.setCentralWidget(m_mainWidgets);
