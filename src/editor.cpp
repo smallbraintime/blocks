@@ -16,11 +16,9 @@ Editor::Editor() {
 }
 
 Editor::~Editor() {
-    makeCurrent();
     m_vao.destroy();
     m_vbo.destroy();
     delete m_program;
-    doneCurrent();
 }
 
 void Editor::initializeGL() {
@@ -196,7 +194,6 @@ void Editor::repaint() {
 
     for (const auto& pos : m_positions) {
         QMatrix4x4 model;
-        model.rotate(20.f * m_positions.size(), 0.0f, 0.0f, 0.0f);
         model.translate(pos);
         QMatrix4x4 view;
         view.translate(pos);
@@ -207,9 +204,8 @@ void Editor::repaint() {
         m_program->setUniformValue("view", view);
         m_program->setUniformValue("projection", projection);
         QMatrix4x4 trans;
-        //trans.scale(sin(y));
-        //trans.translate(cos(y), sin(y), 0);
-        //trans.rotate(degree, cos(y), sin(y), sin(y));
+        trans.translate(cos(y), sin(y), 0);
+        trans.rotate(degree, cos(y), sin(y), sin(y));
         m_program->setUniformValue("isTextured", true);
         m_program->setUniformValue("trans", trans);
         m_texture->bind();
@@ -227,9 +223,11 @@ void Editor::repaint() {
     y += direction;
     direction = y == 1 ? -0.01 : 0.01;
 
-    cursor().setPos(mapToGlobal(rect().center()));
-    m_lastx = mapToGlobal(rect().center()).x();
-    m_lasty = mapToGlobal(rect().center()).y();
+    if (hasFocus()) {
+        cursor().setPos(mapToGlobal(rect().center()));
+        m_lastx = mapToGlobal(rect().center()).x();
+        m_lasty = mapToGlobal(rect().center()).y();
+    }
 
     qint64 currentFrame = QDateTime::currentMSecsSinceEpoch();
     m_deltaTime = (currentFrame - m_lastFrame) / 1000.0f;
@@ -280,7 +278,7 @@ void Editor::mouseMoveEvent(QMouseEvent *event) {
     m_lastx = xPos;
     m_lasty = yPos;
 
-    float sensitivity = 0.05f;
+    float sensitivity = 0.005f;
     xoffset *= sensitivity;
     yoffset *= sensitivity;
 
@@ -302,14 +300,6 @@ void Editor::mouseMoveEvent(QMouseEvent *event) {
 void Editor::mousePressEvent(QMouseEvent *event) {
     App::instance()->setOverrideCursor( QCursor( Qt::BlankCursor ) );
     setFocus();
-}
-
-void Editor::focusOutEvent(QFocusEvent *event) {
-    if (event->reason() == Qt::MouseFocusReason) {
-        event->ignore();
-    } else {
-        QWidget::focusOutEvent(event);
-    }
 }
 
 void Editor::wheelEvent(QWheelEvent *event) {

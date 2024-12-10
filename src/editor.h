@@ -27,7 +27,6 @@ protected:
     virtual void paintGL() override;
 
 private:
-    QOpenGLContext m_context;
     QOpenGLVertexArrayObject m_vao;
     QOpenGLBuffer m_vbo;
     QOpenGLBuffer m_ebo;
@@ -49,7 +48,6 @@ private:
     virtual void keyPressEvent(QKeyEvent *event) override;
     virtual void mouseMoveEvent(QMouseEvent *event) override;
     virtual void mousePressEvent(QMouseEvent *event) override;
-    virtual void focusOutEvent(QFocusEvent *event) override;
     virtual void wheelEvent(QWheelEvent *event) override;
 };
 
