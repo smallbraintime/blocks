@@ -59,7 +59,15 @@ void Menu::createEditMenu() {
     m_deleteAction = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::EditDelete),
                                     tr("&Delete"), this);
     m_editMenu = new QMenu(tr("&Edit"));
-    m_editMenu->addActions({m_undoAction, m_redoAction, m_copyAction, m_cutAction, m_pasteAction, m_modifyAction, m_selectAllAction, m_clearSelectionAction, m_deleteAction});
+    m_editMenu->addActions({m_undoAction,
+                            m_redoAction,
+                            m_copyAction,
+                            m_cutAction,
+                            m_pasteAction,
+                            m_modifyAction,
+                            m_selectAllAction,
+                            m_clearSelectionAction,
+                            m_deleteAction});
 }
 
 void Menu::createHelpMenu() {
@@ -69,26 +77,4 @@ void Menu::createHelpMenu() {
                                 tr("&About"), this);
     m_helpMenu = new QMenu(tr("&Help"));
     m_helpMenu->addActions({m_keyMapAction, m_aboutAction});
-
-    auto* youDiedAction = new QAction(tr("&You Died"));
-    auto* secretEndingMenu = new QMenu("Secret Ending");
-    secretEndingMenu->addAction(youDiedAction);
-    auto* forestMenu = new QMenu("Forest");
-    forestMenu->addAction(youDiedAction);
-    auto* cityMenu = new QMenu("City");
-    cityMenu->addAction(youDiedAction);
-    auto* goMenu = new QMenu("Go to");
-    goMenu->addMenu(cityMenu);
-    goMenu->addMenu(forestMenu);
-    goMenu->addMenu(secretEndingMenu);
-    auto* humanMenu = new QMenu("Human");
-    humanMenu->addMenu(goMenu);
-    auto* unhumanMenu = new QMenu("Unhuman");
-    unhumanMenu->addMenu(goMenu);
-    auto* classChoiceMenu = new QMenu("Choose your class");
-    classChoiceMenu->addMenu(humanMenu);
-    classChoiceMenu->addMenu(unhumanMenu);
-    auto* rpgMenu = new QMenu("Rpg");
-    rpgMenu->addMenu(classChoiceMenu);
-    m_helpMenu->addMenu(rpgMenu);
 }

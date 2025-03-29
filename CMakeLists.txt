@@ -21,16 +21,22 @@ set(PROJECT_SOURCES
     src/editor.h
     src/editor.cpp
     src/style.h
-    src/resources.qrc
-    src/shaders/basic.frag
-    src/shaders/basic.vert
+    src/camera.h
+    src/camera.cpp
+    src/block.h
+    src/block.cpp
+    src/objserializer.h
+    src/objserializer.cpp
+    resources.qrc
+    shaders/basic.frag
+    shaders/basic.vert
 )
 
-file(READ "${CMAKE_SOURCE_DIR}/src/styles/menu.qss" QSS_CONTENT)
+file(READ "${CMAKE_SOURCE_DIR}/styles/menu.qss" QSS_CONTENT)
 string(REPLACE "\n" " " QSS_CONTENT "${QSS_CONTENT}")
 string(REPLACE "\"" "\\\"" QSS_CONTENT "${QSS_CONTENT}")
 set(STYLESHEET "${QSS_CONTENT}")
-configure_file(${CMAKE_SOURCE_DIR}/src/styles/style_template.h.in ${CMAKE_SOURCE_DIR}/src/style.h @ONLY)
+configure_file(${CMAKE_SOURCE_DIR}/styles/style_template.h.in ${CMAKE_SOURCE_DIR}/src/style.h @ONLY)
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(blocks
