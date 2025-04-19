@@ -251,7 +251,6 @@ void Editor::mouseMoveEvent(QMouseEvent *event) {
 
         m_cameraController.yaw(xoffset);
         m_cameraController.pitch(yoffset);
-        //m_cameraController.applyMouseMovement(xoffset, yoffset);
     }
 }
 
