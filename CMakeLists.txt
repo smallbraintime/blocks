@@ -23,10 +23,17 @@ set(PROJECT_SOURCES
     src/style.h
     src/camera.h
     src/camera.cpp
+    src/viewport.h
+    src/viewport.cpp
+    src/renderer.h
+    src/renderer.cpp
     src/block.h
     src/block.cpp
-    src/objserializer.h
-    src/objserializer.cpp
+    src/serializer.h
+    src/serializer.cpp
+    src/cameracontroller.h
+    src/cameracontroller.cpp
+
     resources.qrc
     shaders/basic.frag
     shaders/basic.vert
@@ -42,6 +49,10 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(blocks
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
+        src/viewport.h src/viewport.cpp
+        src/serializer.h src/serializer.cpp
+        src/cameracontroller.h src/cameracontroller.cpp
+        src/renderer.h src/renderer.cpp
     )
 endif()
 

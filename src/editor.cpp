@@ -9,10 +9,11 @@
 
 #include "app.h"
 
-Editor::Editor() {
+Editor::Editor()
+    : m_camera(), m_viewport(45.0f, (float)width() / (float)height(), 0.1f, 100.0f), m_cameraController(m_camera, 1, 0.1) {
     setFocusPolicy(Qt::StrongFocus);
     cursor().setPos(mapToGlobal(rect().center()));
-    setMouseTracking(true);
+    setMouseTracking(true);    
 }
 
 Editor::~Editor() {
@@ -149,23 +150,11 @@ void Editor::initializeGL() {
     m_program->enableAttributeArray(2);
 
     glEnable(GL_DEPTH_TEST);
-
-    for (size_t i = 0; i < 10; ++i) {
-        QRandomGenerator generator;
-        generator = generator.securelySeeded();
-        const auto x = float(generator.generateDouble() * 5.0f - 1.0f);
-        const auto y = float(generator.generateDouble() * 5.0f - 1.0f);
-        const auto z = float(generator.generateDouble() * 5.0f - 1.0f);
-        m_positions.emplace_back(x, y, z);
-    }
-
-    m_cameraPos = {0.0f, 0.0f,  3.0f};
-    m_cameraFront = {0.0f, 0.0f, -1.0f};
-    m_cameraUp = {0.0f, 1.0f,  0.0f};
 }
 
 void Editor::resizeGL(int w, int h) {
     glViewport(0, 0, w, h);
+    m_viewport.setAspectRatio(w / h);
 }
 
 void Editor::paintGL() {
@@ -173,10 +162,6 @@ void Editor::paintGL() {
 }
 
 void Editor::repaint() {
-    static int counter = 0;
-    static float degree = 1;
-    static float y = 0;
-    static float direction = 0.01;
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -184,44 +169,29 @@ void Editor::repaint() {
     m_ebo.bind();
     m_vao.bind();
 
-    if (counter % 16 == 0) {
-        m_program->setUniformValue("mulx", float(QRandomGenerator::global()->generateDouble() * (0.8f - 0.2f) + 0.2f));
-        m_program->setUniformValue("muly", float(QRandomGenerator::global()->generateDouble() * (0.8f - 0.2f) + 0.2f));
-        m_program->setUniformValue("mulz", float(QRandomGenerator::global()->generateDouble() * (0.8f - 0.2f) + 0.2f));
-    }
+    //m_program->setUniformValue("mulx", float(QRandomGenerator::global()->generateDouble() * (0.8f - 0.2f) + 0.2f));
+    //m_program->setUniformValue("muly", float(QRandomGenerator::global()->generateDouble() * (0.8f - 0.2f) + 0.2f));
+    //m_program->setUniformValue("mulz", float(QRandomGenerator::global()->generateDouble() * (0.8f - 0.2f) + 0.2f));
+
     m_program->setUniformValue("isTextured", false);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-    for (const auto& pos : m_positions) {
-        QMatrix4x4 model;
-        model.translate(pos);
-        QMatrix4x4 view;
-        view.translate(pos);
-        view.lookAt(m_cameraPos, m_cameraPos + m_cameraFront, m_cameraUp);
-        QMatrix4x4 projection;
-        projection.perspective(m_fov, width() / height(), 0.1, 100);
-        m_program->setUniformValue("model", model);
-        m_program->setUniformValue("view", view);
-        m_program->setUniformValue("projection", projection);
-        QMatrix4x4 trans;
-        trans.translate(cos(y), sin(y), 0);
-        trans.rotate(degree, cos(y), sin(y), sin(y));
-        m_program->setUniformValue("isTextured", true);
-        m_program->setUniformValue("trans", trans);
-        m_texture->bind();
-        glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)(6 * sizeof(int)));
-    }
+    QMatrix4x4 model;
+    model.translate({0.0f, 0.0f, 0.0f});
+    QMatrix4x4 view = m_camera.view();
+    QMatrix4x4 projection = m_viewport.projection();
+    m_program->setUniformValue("model", model);
+    m_program->setUniformValue("view", view);
+    m_program->setUniformValue("projection", projection);
+    m_program->setUniformValue("isTextured", true);
+    m_texture->bind();
+    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)(6 * sizeof(int)));
 
     m_texture->release();
     m_program->setUniformValue("trans", QMatrix4x4());
     m_program->setUniformValue("model", QMatrix4x4());
     m_program->setUniformValue("view", QMatrix4x4());
     m_program->setUniformValue("projection", QMatrix4x4());
-
-    ++counter;
-    ++degree;
-    y += direction;
-    direction = y == 1 ? -0.01 : 0.01;
 
     if (hasFocus()) {
         cursor().setPos(mapToGlobal(rect().center()));
@@ -237,22 +207,21 @@ void Editor::repaint() {
 }
 
 void Editor::keyPressEvent(QKeyEvent *event) {
-    const float cameraSpeed = 5.5 * m_deltaTime;
     switch (event->key()) {
     case Qt::Key_W: {
-        m_cameraPos += cameraSpeed * m_cameraFront;
+        m_cameraController.moveForward(-m_deltaTime);
         break;
     }
     case Qt::Key_S: {
-        m_cameraPos -= cameraSpeed * m_cameraFront;
+        m_cameraController.moveForward(m_deltaTime);
         break;
     }
     case Qt::Key_A: {
-        m_cameraPos -= QVector3D::crossProduct(m_cameraFront, m_cameraUp).normalized() * cameraSpeed;
+        m_cameraController.moveRight(-m_deltaTime);
         break;
     }
     case Qt::Key_D: {
-        m_cameraPos += QVector3D::crossProduct(m_cameraFront, m_cameraUp).normalized() * cameraSpeed;
+         m_cameraController.moveRight(m_deltaTime);
         break;
     }
     case Qt::Key_Escape: {
@@ -264,37 +233,26 @@ void Editor::keyPressEvent(QKeyEvent *event) {
 }
 
 void Editor::mouseMoveEvent(QMouseEvent *event) {
-    float xPos = cursor().pos().x();
-    float yPos = cursor().pos().y();
+    if (hasFocus()) {
+        float xPos = event->globalPosition().x();
+        float yPos = event->globalPosition().y();
 
-    if (m_firstMouse) {
+        if (m_firstMouse) {
+            m_lastx = xPos;
+            m_lasty = yPos;
+            m_firstMouse = false;
+            return;
+        }
+
+        float xoffset = m_lastx - xPos;
+        float yoffset = m_lasty - yPos;
         m_lastx = xPos;
         m_lasty = yPos;
-        m_firstMouse = false;
+
+        m_cameraController.yaw(xoffset);
+        m_cameraController.pitch(yoffset);
+        //m_cameraController.applyMouseMovement(xoffset, yoffset);
     }
-
-    float xoffset = xPos - m_lastx;
-    float yoffset = m_lasty - yPos;
-    m_lastx = xPos;
-    m_lasty = yPos;
-
-    float sensitivity = 0.005f;
-    xoffset *= sensitivity;
-    yoffset *= sensitivity;
-
-    m_yaw += xoffset;
-    m_pitch += yoffset;
-
-    if(m_pitch > 89.0f)
-        m_pitch = 89.0f;
-    if(m_pitch < -89.0f)
-        m_pitch = -89.0f;
-
-    QVector3D dir;
-    dir.setX(cos(m_yaw) * cos(m_pitch));
-    dir.setY(sin(m_pitch));
-    dir.setZ(sin(m_yaw) * cos(m_pitch));
-    m_cameraFront = dir.normalized();
 }
 
 void Editor::mousePressEvent(QMouseEvent *event) {
@@ -303,10 +261,10 @@ void Editor::mousePressEvent(QMouseEvent *event) {
 }
 
 void Editor::wheelEvent(QWheelEvent *event) {
-    m_fov -=  event->angleDelta().y() / 120;
+    m_viewport.setFov(m_viewport.fov() - event->angleDelta().y() / 120);
 
-    if (m_fov < 1.0f)
-        m_fov = 1.0f;
-    if (m_fov > 120.0f)
-        m_fov = 120.0f;
+    if (m_viewport.fov() < 1.0f)
+        m_viewport.setFov(1.0f);
+    if (m_viewport.fov() > 120.0f)
+        m_viewport.setFov(120.0f);
 }

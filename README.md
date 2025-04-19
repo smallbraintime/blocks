@@ -1,2 +1,2 @@
-# blocks
-a simple game about placing blocks
+# 🔳blocks
+a voxel editor

@@ -12,6 +12,9 @@
 #include <QVector3D>
 #include <QKeyEvent>
 
+#include "camera.h"
+#include "cameracontroller.h"
+#include "viewport.h"
 
 class Editor : public QOpenGLWidget, protected QOpenGLFunctions
 {
@@ -32,18 +35,15 @@ private:
     QOpenGLBuffer m_ebo;
     QOpenGLShaderProgram* m_program;
     QOpenGLTexture* m_texture;
-    QVector<QVector3D> m_positions;
-    QVector3D m_cameraPos;
-    QVector3D m_cameraFront;
-    QVector3D m_cameraUp;
+    Viewport m_viewport;
+    Camera m_camera;
+    CameraController m_cameraController;
     float m_deltaTime = 0;
     qint64 m_lastFrame = 0;
     float m_lastx;
     float m_lasty;
-    float m_yaw;
-    float m_pitch;
     bool m_firstMouse = true;
-    float m_fov = 45;
+
     void repaint();
     virtual void keyPressEvent(QKeyEvent *event) override;
     virtual void mouseMoveEvent(QMouseEvent *event) override;

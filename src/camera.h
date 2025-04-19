@@ -2,30 +2,25 @@
 
 #include <QVector3D>
 #include <QMatrix4x4>
+#include <QQuaternion>
+
 
 class Camera {
 public:
-    QMatrix4x4 getViewMatrix() const;
-    QMatrix4x4 getProjectionMatrix() const;
+    Camera() {};
+    Camera(const QVector3D &position, const QQuaternion &orientation)
+        : m_position(position), m_orientation(orientation) {}
 
-    void moveForward(float delta);
-    void moveBackward(float delta);
-    void moveLeft(float delta);
-    void moveRight(float delta);
+    void set_position(const QVector3D& position);
+    void set_orientation(const QVector3D& euler_angles);
+    void translate(const QVector3D& offset);
+    void rotate(const QVector3D& axis, float angle);
 
-    void processMouseMovement(float xOffset, float yOffset);
-    void processMouseScroll(float yOffset);
+    QMatrix4x4 view() const;
+    const QVector3D &position() const { return m_position; }
+    const QQuaternion &orientation() const { return m_orientation; }
 
 private:
-    QVector3D position;
-    QVector3D front;
-    QVector3D up;
-    QVector3D right;
-    QVector3D worldUp;
-
-    float yaw;
-    float pitch;
-    float movementSpeed;
-    float sensitivity;
-    float fov;
+    QVector3D m_position;
+    QQuaternion m_orientation;
 };

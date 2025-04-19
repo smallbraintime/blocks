@@ -1,9 +1,9 @@
 #pragma once
 
 #include <QColor>
-#include <QVector>
+#include <QVector3D>
 
 struct Block {
-    QVector<int> pos[3];
+    QVector3D position;
     QColor color;
 };
