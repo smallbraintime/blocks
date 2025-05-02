@@ -11,9 +11,10 @@ class Renderer : public QOpenGLWidget, protected QOpenGLFunctions
     Q_OBJECT
 
 public:
-    explicit Renderer(QStringView vertexShaderPath, QStringView fragmentShaderPath);
+    explicit Renderer(QWidget* parent, const SceneData& sceneData,  QStringView vertexShaderPath, QStringView fragmentShaderPath);
 
-    void render(const Scene& scene);
+    void render();
+    void setSceneData(const SceneData& sceneData) { m_sceneData = sceneData; }
 
     virtual void initializeGL() override;
     virtual void resizeGL(int w, int h) override;
@@ -21,4 +22,5 @@ public:
 
 private:
     QOpenGLShaderProgram m_shaderProgram;
+    SceneData& m_sceneData;
 };

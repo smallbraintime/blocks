@@ -24,6 +24,8 @@ set(PROJECT_SOURCES
     src/app/serializer.cpp
     src/app/voxel.h
     src/app/voxel.cpp
+    src/app/cameracontroller.h
+    src/app/cameracontroller.cpp
     src/app/style.h
     resources.qrc
     shaders/basic.frag
@@ -33,19 +35,19 @@ set(PROJECT_SOURCES
 add_library(core STATIC
     src/core/camera.h
     src/core/renderer.h
-    src/core/cameracontroller.h
     src/core/scene.h
     src/core/camera.cpp
     src/core/renderer.cpp
-    src/core/cameracontroller.cpp
     src/core/scene.cpp
-    src/core/entity.h
-    src/core/entity.cpp
+
+
     src/core/graphicscomponent.h
     src/core/graphicscomponents.h
     src/core/graphicscomponents.cpp
-    src/core/gameenginewidget.h
-    src/core/gameenginewidget.cpp
+    src/core/enginewidget.h
+    src/core/enginewidget.cpp
+    src/core/assetmanager.h
+    src/core/assetmanager.cpp
 )
 
 target_link_libraries(core PRIVATE

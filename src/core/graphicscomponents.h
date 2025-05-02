@@ -4,70 +4,39 @@
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLTexture>
 #include <QRandomGenerator64>
+#include <QMatrix4x4>
+#include <QSharedPointer>
+#include <QVector3D>
+#include <QOpenGLShaderProgram>
 
 #include "graphicscomponent.h"
+#include "assetmanager.h"
 
-class Mesh : GraphicsComponent {
-public:
-    explicit Mesh(const QVector<float>& verticies, const std::optional<QVector<unsigned int>>& indices);
-    ~Mesh();
+class StaticMesh : GraphicsComponent {
+    explicit StaticMesh(const QMatrix4x4& position, QSharedPointer<Mesh> mesh, QSharedPointer<Material> material)
+        : m_positions({position}), m_mesh(mesh), m_material(material) {}
+    explicit StaticMesh(QSharedPointer<Mesh> mesh, QSharedPointer<Material> material)
+        : m_mesh(mesh), m_material(material) {}
 
-private:
-    QOpenGLBuffer m_vbo{QOpenGLBuffer::VertexBuffer};
-    QOpenGLBuffer m_ebo{QOpenGLBuffer::IndexBuffer};
-    QOpenGLVertexArrayObject m_vao;
-    bool m_valid;
+    void setMesh(QSharedPointer<Mesh> mesh) { m_mesh = std::move(mesh); }
+    void setMaterial(QSharedPointer<Material> material) { m_material = std::move(material); }
+    void addPosition(const QMatrix4x4& position) { m_positions.append(position); }
+    void removePosition(size_t index) { m_positions.removeAt(index); }
+    QMatrix4x4& getPosition(size_t index) { return m_positions[index]; }
 
-    void bind() { m_vao.bind(); }
-    void unbind() { m_vao.release(); }
-};
+    QSharedPointer<Mesh> mesh() { return m_mesh; }
+    QSharedPointer<Material> material() { return m_material; }
 
-class Texture {
-public:
-    explicit Texture(const std::vector<char>& pixels, size_t width, size_t height);
-    ~Texture() { if (m_texture.isCreated()) m_texture.destroy(); };
-
-private:
-    QOpenGLTexture m_texture;
-    bool m_valid;
-};
-
-class Material {
-public:
-    Material() {};
-
-    void setColor(const QColor& color) { m_color = color; }
-    void setTexture(QSharedPointer<Texture> texture) { m_texture = texture; }
-
-    QColor color() { return m_color; }
+    void beginFrame(QOpenGLShaderProgram &program) override;
+    void endFrame(QOpenGLShaderProgram &program) override;
 
 private:
-    QColor m_color;
-    QSharedPointer<Texture> m_texture = nullptr;
-};
-
-class RenderObject {
-public:
-    RenderObject() {}
-
-    RenderObject(const RenderObject& renderObject);
-    RenderObject& operator=(const RenderObject& renderObject);
-
-    void setTransform(const QMatrix4x4& transform) { m_transform = transform; }
-    void setMesh(QSharedPointer<Mesh> mesh) { m_mesh = mesh; }
-    void setMaterial(QSharedPointer<Material> material) { m_material = material; }
-
-    const QMatrix4x4& transform() { return m_transform; }
-    QSharedPointer<Mesh> mesh() const { return m_mesh; }
-    QSharedPointer<Material> material() const { return m_material; }
-
-private:
-    QMatrix4x4 m_transform;
+    QVector<QMatrix4x4> m_positions;
     QSharedPointer<Mesh> m_mesh;
     QSharedPointer<Material> m_material;
 };
 
-class Light {
+class Light : GraphicsComponent {
 public:
     enum class LightType {
         Directional,
@@ -75,7 +44,7 @@ public:
         Spot
     };
 
-    Light(LightType type, const QVector3D& position, const QColor& color, float intensity, const QVector3D& direction = QVector3D(0,-1,0))
+    explicit Light(LightType type, const QVector3D& position, const QColor& color, float intensity, const QVector3D& direction = QVector3D(0,-1,0))
         : m_type(type), m_position(position), m_direction(direction), m_color(color), m_intensity(intensity) {}
 
     void setType(LightType type) { m_type = type; };
@@ -89,6 +58,9 @@ public:
     QVector3D direction() const { return m_direction; };
     QColor color() const { return m_color; };
     float intensity() const { return m_intensity; };
+
+    void beginFrame(QOpenGLShaderProgram &program) override;
+    void endFrame(QOpenGLShaderProgram &program) override;
 
 private:
     LightType m_type;

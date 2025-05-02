@@ -5,34 +5,45 @@
 #include <QSharedPointer>
 #include <QWeakPointer>
 #include <QStringView>
-#include <QSet>
+#include <QWidget>
+#include <QTimer>
+#include <QObject>
 
 #include "camera.h"
-#include "graphicscomponent.h"
+#include "assetmanager.h"
 
 class Entity;
 
 struct SceneData {
-    QMap<QStringView, QWeakPointer<GraphicsComponent>> m_components; // not really cache friendly
+    QMap<QStringView, QSharedPointer<Entity>> m_entities; // not really cache friendly
     QSharedPointer<Camera> m_activeCamera;
 };
 
-class Scene {
+class Scene : QObject {
+    Q_OBJECT
+
 public:
-    Scene() {}
+    explicit Scene(QObject* parent) : QObject(parent) {}
 
     Scene(const Scene&) = delete;
     Scene& operator=(const Scene&) = delete;
 
     void addEntity(QStringView id, QSharedPointer<Entity> entity);
-    void update(float deltaTime);
-    void setActiveCamera(QSharedPointer<Camera> camera) { m_sceneData->m_activeCamera = std::move(camera); }
+    void setActiveCamera(QSharedPointer<Camera> camera) { m_sceneData.m_activeCamera = std::move(camera); }
+    void keyPressEvent(QKeyEvent* event);
+    void keyReleaseEvent(QKeyEvent* event);
+    void mouseMoveEvent(QMouseEvent* event);
     template<typename T>
-    QSharedPointer<T> getEntity(QStringView id);
+    QSharedPointer<T> getEntity() {
+    }
 
-    const SceneData& getSceneData() { return *m_sceneData; }
+    const SceneData& getSceneData() const { return m_sceneData; }
+    const AssetManager& getAssetManager() const { return m_assetManager; }
+
+public slots:
+    void update(float deltaTime);
 
 private:
-    QMap<QStringView, QSharedPointer<Entity>> m_entities;
-    QSharedPointer<SceneData> m_sceneData;
+    SceneData m_sceneData;
+    AssetManager m_assetManager;
 };

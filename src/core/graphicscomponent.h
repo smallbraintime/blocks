@@ -4,6 +4,7 @@
 
 class GraphicsComponent {
 public:
+    GraphicsComponent() = default;
     virtual void beginFrame(QOpenGLShaderProgram& program);
     virtual void endFrame(QOpenGLShaderProgram& program);
     virtual ~GraphicsComponent() = default;
@@ -12,8 +13,5 @@ public:
     GraphicsComponent& operator=(const GraphicsComponent&) = delete;
 
 private:
-    QStringView m_id;
     bool m_valid;
-
-    friend class Entity;
 };
