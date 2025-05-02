@@ -13,7 +13,8 @@ Editor::Editor()
     : m_camera(), m_viewport(45.0f, (float)width() / (float)height(), 0.1f, 100.0f), m_cameraController(m_camera, 1, 0.1) {
     setFocusPolicy(Qt::StrongFocus);
     cursor().setPos(mapToGlobal(rect().center()));
-    setMouseTracking(true);    
+    setMouseTracking(true);
+    setAttribute(Qt::WA_InputMethodEnabled, false);
 }
 
 Editor::~Editor() {
@@ -133,7 +134,6 @@ void Editor::initializeGL() {
     } else {
         qDebug() << "Texture not created!";
     }
-    m_texture->bind();
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -150,6 +150,9 @@ void Editor::initializeGL() {
     m_program->enableAttributeArray(2);
 
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glDisable(GL_CULL_FACE);
 }
 
 void Editor::resizeGL(int w, int h) {

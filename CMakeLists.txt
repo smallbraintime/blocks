@@ -13,30 +13,49 @@ find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets OpenGLWidgets OpenGL)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets OpenGLWidgets OpenGL)
 
 set(PROJECT_SOURCES
-    src/main.cpp
-    src/app.h
-    src/app.cpp
-    src/menu.h
-    src/menu.cpp
-    src/editor.h
-    src/editor.cpp
-    src/style.h
-    src/camera.h
-    src/camera.cpp
-    src/viewport.h
-    src/viewport.cpp
-    src/renderer.h
-    src/renderer.cpp
-    src/block.h
-    src/block.cpp
-    src/serializer.h
-    src/serializer.cpp
-    src/cameracontroller.h
-    src/cameracontroller.cpp
-
+    src/app/main.cpp
+    src/app/app.h
+    src/app/app.cpp
+    src/app/menu.h
+    src/app/menu.cpp
+    src/app/editor.h
+    src/app/editor.cpp
+    src/app/serializer.h
+    src/app/serializer.cpp
+    src/app/voxel.h
+    src/app/voxel.cpp
+    src/app/style.h
     resources.qrc
     shaders/basic.frag
     shaders/basic.vert
+)
+
+add_library(core STATIC
+    src/core/camera.h
+    src/core/renderer.h
+    src/core/cameracontroller.h
+    src/core/scene.h
+    src/core/camera.cpp
+    src/core/renderer.cpp
+    src/core/cameracontroller.cpp
+    src/core/scene.cpp
+    src/core/entity.h
+    src/core/entity.cpp
+    src/core/graphicscomponent.h
+    src/core/graphicscomponents.h
+    src/core/graphicscomponents.cpp
+    src/core/gameenginewidget.h
+    src/core/gameenginewidget.cpp
+)
+
+target_link_libraries(core PRIVATE
+    Qt${QT_VERSION_MAJOR}::Widgets
+    Qt${QT_VERSION_MAJOR}::OpenGL
+    Qt${QT_VERSION_MAJOR}::OpenGLWidgets
+)
+
+target_include_directories(core PUBLIC
+    ${CMAKE_SOURCE_DIR}/src/core
 )
 
 file(READ "${CMAKE_SOURCE_DIR}/styles/menu.qss" QSS_CONTENT)
@@ -49,17 +68,18 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(blocks
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
-        src/viewport.h src/viewport.cpp
-        src/serializer.h src/serializer.cpp
-        src/cameracontroller.h src/cameracontroller.cpp
-        src/renderer.h src/renderer.cpp
     )
 endif()
+
+target_include_directories(blocks PRIVATE
+    ${CMAKE_SOURCE_DIR}/src/core
+)
 
 target_link_libraries(blocks PRIVATE
     Qt${QT_VERSION_MAJOR}::Widgets
     Qt${QT_VERSION_MAJOR}::OpenGL
     Qt${QT_VERSION_MAJOR}::OpenGLWidgets
+    core
 )
 
 if(${QT_VERSION} VERSION_LESS 6.1.0)

@@ -1,13 +1,15 @@
 #pragma once
 
+#include <QSharedPointer>
+
 #include "camera.h"
 
 class CameraController
 {
 public:
-    CameraController(Camera &camera) : m_camera(camera) {}
-    CameraController(Camera &camera, float speed, float sentisivity)
-        : m_camera(camera), m_speed(speed), m_sentisivity(sentisivity) {}
+    explicit CameraController(QSharedPointer<Camera> camera) : m_camera(std::move(camera)) {}
+    explicit CameraController(QSharedPointer<Camera> camera, float speed, float sentisivity)
+        : m_camera(std::move(camera)), m_speed(speed), m_sentisivity(sentisivity) {}
 
     void moveForward(float axis);
     void moveRight(float axis);
@@ -20,7 +22,7 @@ public:
     float sentisivity() const { return m_sentisivity; }
 
 private:
-    Camera& m_camera;
+    QSharedPointer<Camera> m_camera;
     float m_speed;
     float m_sentisivity;
     float m_pitch;

@@ -14,7 +14,8 @@ uniform bool isTextured;
 void main() {
     if (isTextured) {
         FragColor = texture(ourTexture, texCoord);
+        FragColor.a *= 0.25;
     } else {
-        FragColor = vec4(ourColor.x * mulx, ourColor.y * muly, ourColor.z * mulz, 1.0);
+        FragColor = vec4(ourColor.x * mulx, ourColor.y * muly, ourColor.z * mulz, 128);
     }
 }
