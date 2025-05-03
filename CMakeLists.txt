@@ -39,8 +39,6 @@ add_library(core STATIC
     src/core/camera.cpp
     src/core/renderer.cpp
     src/core/scene.cpp
-
-
     src/core/graphicscomponent.h
     src/core/graphicscomponents.h
     src/core/graphicscomponents.cpp
@@ -48,6 +46,7 @@ add_library(core STATIC
     src/core/enginewidget.cpp
     src/core/assetmanager.h
     src/core/assetmanager.cpp
+    src/core/entity.h
 )
 
 target_link_libraries(core PRIVATE

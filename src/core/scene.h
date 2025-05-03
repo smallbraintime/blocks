@@ -8,6 +8,7 @@
 #include <QWidget>
 #include <QTimer>
 #include <QObject>
+#include <QHash>
 
 #include "camera.h"
 #include "assetmanager.h"
@@ -15,7 +16,7 @@
 class Entity;
 
 struct SceneData {
-    QMap<QStringView, QSharedPointer<Entity>> m_entities; // not really cache friendly
+    QHash<QStringView, QSharedPointer<Entity>> m_entities; // not really cache friendly
     QSharedPointer<Camera> m_activeCamera;
 };
 
@@ -28,13 +29,14 @@ public:
     Scene(const Scene&) = delete;
     Scene& operator=(const Scene&) = delete;
 
-    void addEntity(QStringView id, QSharedPointer<Entity> entity);
+    void addEntity(QStringView name, QSharedPointer<Entity> entity);
     void setActiveCamera(QSharedPointer<Camera> camera) { m_sceneData.m_activeCamera = std::move(camera); }
     void keyPressEvent(QKeyEvent* event);
     void keyReleaseEvent(QKeyEvent* event);
     void mouseMoveEvent(QMouseEvent* event);
     template<typename T>
     QSharedPointer<T> getEntity() {
+        // qHash("player");
     }
 
     const SceneData& getSceneData() const { return m_sceneData; }
