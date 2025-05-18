@@ -13,27 +13,56 @@
 #include "assetmanager.h"
 
 class StaticMesh : GraphicsComponent {
-    explicit StaticMesh(const QMatrix4x4& position, QSharedPointer<Mesh> mesh, QSharedPointer<Material> material)
-        : m_positions({position}), m_mesh(mesh), m_material(material) {}
-    explicit StaticMesh(QSharedPointer<Mesh> mesh, QSharedPointer<Material> material)
-        : m_mesh(mesh), m_material(material) {}
+    explicit StaticMesh(const QMatrix4x4& transform, QSharedPointer<Mesh> mesh, QSharedPointer<Material> material)
+        : m_transform(transform), m_mesh(mesh), m_material(material) {}
 
     void setMesh(QSharedPointer<Mesh> mesh) { m_mesh = std::move(mesh); }
     void setMaterial(QSharedPointer<Material> material) { m_material = std::move(material); }
-    void addPosition(const QMatrix4x4& position) { m_positions.append(position); }
-    void removePosition(size_t index) { m_positions.removeAt(index); }
-    QMatrix4x4& getPosition(size_t index) { return m_positions[index]; }
+    void setPosition(const QMatrix4x4& transform) { m_transform = transform; }
+    const QMatrix4x4& getPosition() { return m_transform; }
 
     QSharedPointer<Mesh> mesh() { return m_mesh; }
     QSharedPointer<Material> material() { return m_material; }
 
-    void beginFrame(QOpenGLShaderProgram &program) override;
-    void endFrame(QOpenGLShaderProgram &program) override;
+    void beginFrame(QOpenGLShaderProgram& program) override;
+    void endFrame(QOpenGLShaderProgram& program) override;
 
 private:
-    QVector<QMatrix4x4> m_positions;
+    QMatrix4x4 m_transform;
     QSharedPointer<Mesh> m_mesh;
     QSharedPointer<Material> m_material;
+};
+
+class InstancedStaticMesh : GraphicsComponent {
+    struct StaticMeshInstance {
+        QMatrix4x4 m_transform;
+        QColor m_color;
+    };
+
+public:
+    explicit InstancedStaticMesh(QSharedPointer<Mesh> mesh) : m_mesh(mesh) {}
+    ~InstancedStaticMesh();
+
+    void setMesh(QSharedPointer<Mesh> mesh) { m_mesh = std::move(mesh); }
+    void addInstance(const QMatrix4x4& position, const QColor& color);
+    void removeInstanceAt(size_t index);
+    void setPositionAt(size_t index, const QMatrix4x4& transform);
+    void setColorAt(size_t index, const QColor& color);
+    void setIsTransparent(bool isTransparent) { m_isTransparent  = isTransparent; }
+
+    const StaticMeshInstance& getInstanceAt(size_t index) const { return m_instances[index]; }
+    const QSharedPointer<Mesh> mesh() const { return m_mesh; }
+    bool isTransparent() const { return m_isTransparent; }
+
+    void beginFrame(QOpenGLShaderProgram& program) override;
+    void endFrame(QOpenGLShaderProgram& program) override;
+
+private:
+    QVector<StaticMeshInstance> m_instances;
+    QSharedPointer<Mesh> m_mesh;
+    bool m_isTransparent;
+    QOpenGLBuffer m_vbo{QOpenGLBuffer::VertexBuffer};
+    bool m_isModified;
 };
 
 class Light : GraphicsComponent {
@@ -59,8 +88,8 @@ public:
     QColor color() const { return m_color; };
     float intensity() const { return m_intensity; };
 
-    void beginFrame(QOpenGLShaderProgram &program) override;
-    void endFrame(QOpenGLShaderProgram &program) override;
+    void beginFrame(QOpenGLShaderProgram& program) override;
+    void endFrame(QOpenGLShaderProgram& program) override;
 
 private:
     LightType m_type;

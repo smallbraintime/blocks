@@ -4,62 +4,93 @@
 #include <QOpenGLVertexArrayObject>
 #include <QColor>
 #include <QStringView>
-#include <QMap>
+#include <QHash>
+#include <QWeakPointer>
 
-class Mesh {
+#include "graphicscomponent.h"
+
+class Mesh : GraphicsComponent {
 public:
-    explicit Mesh(const QVector<float>& verticies, const std::optional<QVector<unsigned int>>& indices);
+    explicit Mesh(const QVector<float>& verticies, const QVector<unsigned int>& indices);
     ~Mesh();
 
-    void bind() { m_vao.bind(); }
-    void unbind() { m_vao.release(); }
+    void init(QOpenGLVertexArrayObject& vao) override;
+    void beginFrame(QOpenGLShaderProgram &program) override;
+    void endFrame(QOpenGLShaderProgram &program) override;
 
 private:
     QOpenGLBuffer m_vbo{QOpenGLBuffer::VertexBuffer};
     QOpenGLBuffer m_ebo{QOpenGLBuffer::IndexBuffer};
-    QOpenGLVertexArrayObject m_vao;
-    bool m_valid;
 };
 
-class Material {
+class Material : GraphicsComponent {
 public:
     Material() = default;
 
     void setColor(const QColor& color) { m_color = color; }
+    void setIsTransparent(bool isTransparent) { m_isTransparent  = isTransparent; }
 
     const QColor& color() const { return m_color; }
+    bool isTransparent() const { return m_isTransparent; }
+
+    void beginFrame(QOpenGLShaderProgram &program) override;
+    void endFrame(QOpenGLShaderProgram &program) override;z
 
 private:
     QColor m_color;
+    bool m_isTransparent;
+    // QOpenGLTexture m_texture;
 };
 
 class AssetManager {
 public:
     AssetManager() = default;
 
-    template<typename T>
-    void addAsset(QStringView id, QSharedPointer<T> asset) {
+    template<typename T, typename... Args>
+    T& createAsset(QStringView name, Args&&... args) {
+        if constexpr (typeid(T) == typeid(Mesh)) {
+            return m_meshes.insert(name, std::forward<Args>(args)...);
+        } else if constexpr (typeid(T) == typeid(Material)) {
+            return m_materials.insert(name, std::forward<Args>(args)...);
+        } else {
+            qWarning("Invalid type of the asset.");
+        }
     }
 
     template<typename T>
-    QSharedPointer<T> getAsset(QStringView id) const {
+    T& getAsset(QStringView name) const {
+        if constexpr (typeid(T) == typeid(Mesh)) {
+            return m_meshes.find(name);
+        } else if constexpr (typeid(T) == typeid(Material)) {
+            return m_materials.find(name);
+        } else {
+            qWarning("Invalid type of the asset.");
+        }
     }
 
     template<typename T>
-    void removeAsset(QStringView id) {
+    bool hasAsset(QStringView name) const {
+        if constexpr (typeid(T) == typeid(Mesh)) {
+            return m_meshes.contains(name);
+        } else if constexpr (typeid(T) == typeid(Material)) {
+            return m_materials.contains(name);
+        } else {
+            qWarning("Invalid type of the asset.");
+        }
+    }
+
+    template<typename T>
+    void removeAsset(QStringView name) {
+        if constexpr (typeid(T) == typeid(Mesh)) {
+            m_meshes.remove(name);
+        } else if constexpr (typeid(T) == typeid(Material)) {
+            m_materials.find(name);
+        } else {
+            qWarning("Invalid type of the asset.");
+        }
     }
 
 private:
-    QMap<QStringView, QSharedPointer<Mesh>> m_meshes;
-    QMap<QStringView, QSharedPointer<Material>> m_materials;
+    QHash<QStringView, Mesh> m_meshes;
+    QHash<QStringView, Material> m_materials;
 };
-
-// class Texture {
-// public:
-//     explicit Texture(const std::vector<char>& pixels, size_t width, size_t height);
-//     ~Texture() { if (m_texture.isCreated()) m_texture.destroy(); };
-
-// private:
-//     QOpenGLTexture m_texture;
-//     bool m_valid;
-// };

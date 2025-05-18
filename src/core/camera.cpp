@@ -48,3 +48,10 @@ QMatrix4x4 Camera::projection() const {
 
     return projection;
 }
+
+void Camera::beginFrame(QOpenGLShaderProgram &program) {
+    program.setUniformValue("uView", view());
+    program.setUniformValue("uProjection", projection());
+}
+
+void Camera::endFrame(QOpenGLShaderProgram &program) {}
