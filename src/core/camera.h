@@ -4,9 +4,9 @@
 #include <QMatrix4x4>
 #include <QQuaternion>
 
-#include "graphicscomponent.h"
+#include "renderer.h"
 
-class Camera : GraphicsComponent {
+class Camera {
 public:
     enum class ProjectionMode : quint8 {
         Perspective,
@@ -39,9 +39,6 @@ public:
     float nearPlane() const { return m_nearPlane; }
     float farPlane() const { return m_farPlane; }
 
-    void beginFrame(QOpenGLShaderProgram &program) override;
-    void endFrame(QOpenGLShaderProgram &program) override;
-
 private:
     QVector3D m_position;
     QQuaternion m_orientation;
@@ -50,4 +47,6 @@ private:
     float m_nearPlane = 1;
     float m_farPlane = 1000;
     ProjectionMode m_mode;
+
+    friend class Renderer;
 };

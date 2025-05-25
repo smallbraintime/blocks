@@ -8,19 +8,20 @@
 #include <QObject>
 #include <QHash>
 #include <QWeakPointer>
+#include <QVector>
 
-#include "camera.h"
 #include "assetmanager.h"
 
 class Entity;
+class Camera;
 
 class Scene : QObject {
     Q_OBJECT
 
 public:
     struct SceneData {
-        QHash<QStringView, QSharedPointer<Entity>> m_entities;
-        Camera* m_activeCamera = nullptr;
+        Camera* activeCamera = nullptr;
+        QHash<QStringView, QSharedPointer<Entity>> entities;
     };
 
     explicit Scene(QObject* parent) : QObject(parent) {}
@@ -34,7 +35,7 @@ public:
     QWeakPointer<Entity> getEntity(QStringView name);
 
     void removeEntity(QStringView name);
-    void setActiveCamera(Camera* camera) { m_sceneData.m_activeCamera = camera; }
+    void setActiveCamera(Camera* camera) { m_sceneData.activeCamera = camera; }
     void keyPressEvent(QKeyEvent* event);
     void keyReleaseEvent(QKeyEvent* event);
     void mouseMoveEvent(QMouseEvent* event);

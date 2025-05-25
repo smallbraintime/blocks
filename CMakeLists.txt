@@ -28,8 +28,6 @@ set(PROJECT_SOURCES
     src/app/cameracontroller.cpp
     src/app/style.h
     resources.qrc
-    shaders/basic.frag
-    shaders/basic.vert
 )
 
 add_library(core STATIC
@@ -39,7 +37,6 @@ add_library(core STATIC
     src/core/camera.cpp
     src/core/renderer.cpp
     src/core/scene.cpp
-    src/core/graphicscomponent.h
     src/core/graphicscomponents.h
     src/core/graphicscomponents.cpp
     src/core/enginewidget.h
@@ -47,6 +44,14 @@ add_library(core STATIC
     src/core/assetmanager.h
     src/core/assetmanager.cpp
     src/core/entity.h
+    shaders/zpass.vert
+    shaders/zpass.frag
+    shaders/base.frag
+    shaders/base.vert
+    shaders/lighting.frag
+    shaders/lighting.vert
+    shaders/postprocess.frag
+    shaders/postprocess.vert
 )
 
 target_link_libraries(core PRIVATE

@@ -9,31 +9,32 @@
 #include <QVector3D>
 #include <QOpenGLShaderProgram>
 
-#include "graphicscomponent.h"
 #include "assetmanager.h"
 
-class StaticMesh : GraphicsComponent {
-    explicit StaticMesh(const QMatrix4x4& transform, QSharedPointer<Mesh> mesh, QSharedPointer<Material> material)
-        : m_transform(transform), m_mesh(mesh), m_material(material) {}
+class StaticMesh{
+    explicit StaticMesh(QSharedPointer<Mesh> mesh, const QColor& color)
+        : m_mesh(mesh), m_color(color) {}
 
     void setMesh(QSharedPointer<Mesh> mesh) { m_mesh = std::move(mesh); }
-    void setMaterial(QSharedPointer<Material> material) { m_material = std::move(material); }
-    void setPosition(const QMatrix4x4& transform) { m_transform = transform; }
+    void setColor(const QColor& color) { m_color = color; }
+    void setIsTransparent(bool isTransparent) { m_isTransparent = isTransparent; }
     const QMatrix4x4& getPosition() { return m_transform; }
 
     QSharedPointer<Mesh> mesh() { return m_mesh; }
-    QSharedPointer<Material> material() { return m_material; }
+    const QColor& color() { return m_color; }
+    bool isTransparent() { return m_isTransparent; }
 
-    void beginFrame(QOpenGLShaderProgram& program) override;
-    void endFrame(QOpenGLShaderProgram& program) override;
+    QMatrix4x4 m_transform;
 
 private:
-    QMatrix4x4 m_transform;
     QSharedPointer<Mesh> m_mesh;
-    QSharedPointer<Material> m_material;
+    QColor m_color;
+    bool m_isTransparent;
+
+    friend class Renderer;
 };
 
-class InstancedStaticMesh : GraphicsComponent {
+class InstancedStaticMesh {
     struct StaticMeshInstance {
         QMatrix4x4 m_transform;
         QColor m_color;
@@ -46,7 +47,7 @@ public:
     void setMesh(QSharedPointer<Mesh> mesh) { m_mesh = std::move(mesh); }
     void addInstance(const QMatrix4x4& position, const QColor& color);
     void removeInstanceAt(size_t index);
-    void setPositionAt(size_t index, const QMatrix4x4& transform);
+    void setTransformAt(size_t index, const QMatrix4x4& transform);
     void setColorAt(size_t index, const QColor& color);
     void setIsTransparent(bool isTransparent) { m_isTransparent  = isTransparent; }
 
@@ -54,18 +55,19 @@ public:
     const QSharedPointer<Mesh> mesh() const { return m_mesh; }
     bool isTransparent() const { return m_isTransparent; }
 
-    void beginFrame(QOpenGLShaderProgram& program) override;
-    void endFrame(QOpenGLShaderProgram& program) override;
+    QMatrix4x4 m_transform;
 
 private:
     QVector<StaticMeshInstance> m_instances;
     QSharedPointer<Mesh> m_mesh;
     bool m_isTransparent;
-    QOpenGLBuffer m_vbo{QOpenGLBuffer::VertexBuffer};
+    QOpenGLBuffer m_ssbo;
     bool m_isModified;
+
+    friend class Renderer;
 };
 
-class Light : GraphicsComponent {
+class Light {
 public:
     enum class LightType {
         Directional,
@@ -73,28 +75,26 @@ public:
         Spot
     };
 
-    explicit Light(LightType type, const QVector3D& position, const QColor& color, float intensity, const QVector3D& direction = QVector3D(0,-1,0))
-        : m_type(type), m_position(position), m_direction(direction), m_color(color), m_intensity(intensity) {}
+    explicit Light(LightType type, const QColor& color, float intensity, const QVector3D& direction)
+        : m_type(type), m_direction(direction), m_color(color), m_intensity(intensity) {}
 
     void setType(LightType type) { m_type = type; };
-    void setPosition(const QVector3D &position) { m_position = position;};
     void setDirection(const QVector3D &direction) { m_direction = direction; };
     void setColor(const QColor &color) { m_color = color; };
     void setIntensity(float intensity) { m_intensity = intensity; };
 
     LightType type() const {  return m_type; };
-    QVector3D position() const { return m_position; };
     QVector3D direction() const { return m_direction; };
     QColor color() const { return m_color; };
     float intensity() const { return m_intensity; };
 
-    void beginFrame(QOpenGLShaderProgram& program) override;
-    void endFrame(QOpenGLShaderProgram& program) override;
+    QMatrix4x4 m_transform;
 
 private:
     LightType m_type;
-    QVector3D m_position;
     QVector3D m_direction;
     QColor m_color;
     float m_intensity;
+
+    friend class Renderer;
 };
