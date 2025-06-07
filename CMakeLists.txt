@@ -47,6 +47,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(blocks
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
+        src/inputmanager.h src/inputmanager.cpp
     )
 endif()
 

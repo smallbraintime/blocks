@@ -1,16 +1,16 @@
 #include "editor.h"
 
 #include <QApplication>
-#include <QDateTime>
-#include <QRandomGenerator>
-#include <QImage>
-#include <QImageReader>
 #include <QMatrix4x4>
 #include <QKeyEvent>
+#include <QSharedPointer>
 
 #include "app.h"
 
 Editor::Editor(QWidget* parent) : QWidget(parent) {
+    QSharedPointer<Camera> camera(new Camera());
+    m_renderer = new BlocksRenderer(this, std::move(camera));
+
     setFocusPolicy(Qt::StrongFocus);
     cursor().setPos(mapToGlobal(rect().center()));
     setMouseTracking(true);

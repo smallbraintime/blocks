@@ -1,6 +1,6 @@
 #include "renderer.h"
 
-BlocksRenderer::BlocksRenderer(QOpenGLWidget* parent, QSharedPointer<Camera> camera) : QOpenGLWidget(parent) {
+BlocksRenderer::BlocksRenderer(QWidget* parent, QSharedPointer<Camera> camera) : QOpenGLWidget(parent) {
     m_renderContext.camera = camera;
 }
 

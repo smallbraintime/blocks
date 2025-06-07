@@ -7,6 +7,7 @@
 #include <QSharedPointer>
 #include <QOpenGLBuffer>
 #include <QOpenGLExtraFunctions>
+#include <QWidget>
 #include <memory>
 
 #include "renderpass.h"
@@ -24,7 +25,7 @@ class BlocksRenderer: public QOpenGLWidget, protected  QOpenGLFunctions {
     Q_OBJECT
 
 public:
-    BlocksRenderer(QOpenGLWidget* parent = nullptr, QSharedPointer<Camera> camera = {});
+    BlocksRenderer(QWidget* parent = nullptr, QSharedPointer<Camera> camera = {});
 
     void setBuffer(const QVector<QColor>& blocks);
     void render();

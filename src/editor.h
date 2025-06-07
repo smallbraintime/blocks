@@ -1,9 +1,6 @@
 #pragma once
 
-#include <QOpenGLWidget>
-#include <QOpenGLFunctions>
 #include <QWidget>
-#include <QSharedPointer>
 
 #include "scene.h"
 #include "renderer.h"
