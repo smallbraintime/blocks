@@ -32,15 +32,27 @@ set(PROJECT_SOURCES
     src/app/renderer.cpp
     src/app/scene.h
 
-    resources.qrc
-    shaders/zpass.vert
-    shaders/zpass.frag
-    shaders/base.frag
-    shaders/base.vert
-    shaders/lighting.frag
-    shaders/lighting.vert
-    shaders/postprocess.frag
-    shaders/postprocess.vert
+    resources/shaders/zpass.vert
+    resources/shaders/zpass.frag
+    resources/shaders/base.frag
+    resources/shaders/base.vert
+    resources/shaders/lighting.frag
+    resources/shaders/lighting.vert
+    resources/shaders/postprocess.frag
+    resources/shaders/postprocess.vert
+)
+
+qt_add_resources(PROJECT_SOURCES
+    PREFIX "/resources"
+    FILES
+        shaders/base.frag
+        shaders/base.vert
+        shaders/lighting.frag
+        shaders/lighting.vert
+        shaders/postprocess.frag
+        shaders/postprocess.vert
+        shaders/zpass.frag
+        shaders/zpass.vert
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
