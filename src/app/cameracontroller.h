@@ -1,16 +1,14 @@
 #pragma once
 
-#include <QSharedPointer>
-
 #include "camera.h"
 
-class CameraController
-{
+class CameraController {
 public:
-    explicit CameraController(QSharedPointer<Camera> camera) : m_camera(std::move(camera)) {}
+    CameraController() = default;
     explicit CameraController(QSharedPointer<Camera> camera, float speed, float sentisivity)
         : m_camera(std::move(camera)), m_speed(speed), m_sentisivity(sentisivity) {}
 
+    void setCamera(QSharedPointer<Camera> camera) { m_camera = camera; }
     void moveForward(float axis);
     void moveRight(float axis);
     void pitch(float angle);

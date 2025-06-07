@@ -1,34 +1,6 @@
+#include "renderpass.h"
+
 #include "renderer.h"
-
-#include "camera.h"
-
-void Renderer::initializeGL() {
-    initializeOpenGLFunctions();
-
-
-    glEnable(GL_DEPTH_TEST);
-}
-
-void Renderer::resizeGL(int w, int h) {
-    glViewport(0, 0, w, h);
-    m_sceneData->activeCamera->setAspectRatio(w / h);
-}
-
-void Renderer::paintGL() {
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    // if (m_isTransparent) {
-    //     glEnable(GL_BLEND);
-    //     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    //     glDepthMask(GL_FALSE);
-    // } else {
-    //     glDisable(GL_BLEND);
-    //     glDepthMask(GL_TRUE);
-    // }
-
-    update();
-}
 
 ZPass::ZPass() {
     if (!m_shaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/zpass.vert")) {
@@ -46,7 +18,7 @@ void ZPass::begin() {
 
 }
 
-void ZPass::render(const Scene::SceneData &sceneData) {
+void ZPass::render(const RenderContext &renderContext) {
 
 }
 
@@ -70,7 +42,7 @@ void BasePass::begin() {
 
 }
 
-void BasePass::render(const Scene::SceneData &sceneData) {
+void BasePass::render(const RenderContext &renderContext) {
 
 }
 
@@ -94,7 +66,7 @@ void LightPass::begin() {
 
 }
 
-void LightPass::render(const Scene::SceneData &sceneData) {
+void LightPass::render(const RenderContext &renderContext) {
 
 }
 

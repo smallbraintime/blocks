@@ -4,7 +4,7 @@
 
 #include "app.h"
 
-Menu::Menu() {
+Menu::Menu(QWidget* parent) : QMenuBar(parent) {
     createFileMenu();
     createEditMenu();
     createHelpMenu();
@@ -12,17 +12,6 @@ Menu::Menu() {
     addMenu(m_editMenu);
     addMenu(m_helpMenu);
 }
-
-void Menu::hideMenuBar()
-{
-    setVisible(false);
-}
-
-void Menu::showMenuBar()
-{
-    setVisible(true);
-}
-
 
 void Menu::createFileMenu() {
     m_openAction = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::DocumentNew),

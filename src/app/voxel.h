@@ -1,13 +1,10 @@
 #pragma once
 
-#include "renderer.h"
-#include "scene.h"
-
-class Voxel : IObject {
-public:
-    Voxel() {}
-
-private:
-    QSharedPointer<RenderObject> m_renderObject;
-};
+#include <QVector>
+#include <QMatrix4x4>
+#include <QColor>
+#include <QOpenGLVertexArrayObject>
+#include <QOpenGLBuffer>
+#include <QOpenGLShaderProgram>
+#include <QSharedPointer>
 

@@ -9,8 +9,7 @@
 #include "menu.h"
 #include "editor.h"
 
-class App : public QApplication
-{
+class App : public QApplication {
 public:
     explicit App(int& argc, char** argv);
     static App* instance();

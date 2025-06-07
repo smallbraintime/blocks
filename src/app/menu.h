@@ -4,14 +4,11 @@
 #include <QMenu>
 #include <QAction>
 
-class Menu : public QMenuBar
-{
+class Menu : public QMenuBar {
     Q_OBJECT
 
 public:
-    Menu();
-    void hideMenuBar();
-    void showMenuBar();
+    Menu(QWidget* parent = nullptr);
 
 public:
     QMenu* m_fileMenu;

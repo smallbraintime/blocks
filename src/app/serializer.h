@@ -1,14 +1,13 @@
 #pragma once
 
 #include <QVector>
+#include <QColor>
+#include <QString>
 
-#include "voxel.h"
-
-class BlkSerializer
-{
+class BlkSerializer {
 public:
-    static void serialize(const QVector<Voxel>& blocks, const QString& filepath);
-    static QVector<Voxel> deserialize(const QString& filepath);
+    static void serialize(const QString& filepath, const QVector<QColor>& blocks);
+    static QVector<QColor>& deserialize(const QString& filepath);
 };
 
-void serializeToObj(const QVector<Voxel>& blocks, const QString& filepath);
+void serializeToObj(const QString& filepath, const QVector<QColor>& blocks);

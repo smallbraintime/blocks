@@ -4,14 +4,11 @@
 #include <QApplication>
 #include <QFileDialog>
 
-#include "style.h"
-
 App::App(int& argc, char** argv) : QApplication(argc, argv) {
     m_menu = new Menu();
     m_editor = new Editor();
     m_startPage = new QLabel("BLOCKS");
     m_startPage->setAlignment(Qt::AlignCenter);
-    m_startPage->setStyleSheet(STYLESHEET);
 
     m_mainWidgets = new QStackedWidget();
     m_mainWidgets->addWidget(m_startPage);

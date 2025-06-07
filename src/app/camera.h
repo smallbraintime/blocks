@@ -4,8 +4,6 @@
 #include <QMatrix4x4>
 #include <QQuaternion>
 
-#include "renderer.h"
-
 class Camera {
 public:
     enum class ProjectionMode : quint8 {
@@ -13,10 +11,9 @@ public:
         Orthogonal
     };
 
-    explicit Camera(const QVector3D &position, const QQuaternion &orientation)
-        : m_position(position), m_orientation(orientation) {}
-    explicit Camera(const QVector3D &position, const QQuaternion &orientation, float viewFactor, float nearPlane, float farPlane)
-        : m_position(position), m_orientation(orientation), m_viewFactor(viewFactor), m_nearPlane(nearPlane), m_farPlane(farPlane) {}
+    Camera() = default;
+    explicit Camera(float aspectRatio, const QVector3D &position, const QQuaternion &orientation)
+        : m_aspectRatio(aspectRatio), m_position(position), m_orientation(orientation) {}
 
     void set_position(const QVector3D& position);
     void set_orientation(const QVector3D& euler_angles);
@@ -44,9 +41,7 @@ private:
     QQuaternion m_orientation;
     float m_viewFactor = 45.0f; // can be treated as a fov or size depends on camera mode
     float m_aspectRatio;
-    float m_nearPlane = 1;
-    float m_farPlane = 1000;
-    ProjectionMode m_mode;
-
-    friend class Renderer;
+    float m_nearPlane = 1.0f;
+    float m_farPlane = 1000.0f;
+    ProjectionMode m_mode{ProjectionMode::Perspective};
 };

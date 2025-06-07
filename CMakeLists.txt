@@ -22,28 +22,17 @@ set(PROJECT_SOURCES
     src/app/editor.cpp
     src/app/serializer.h
     src/app/serializer.cpp
-    src/app/voxel.h
-    src/app/voxel.cpp
     src/app/cameracontroller.h
     src/app/cameracontroller.cpp
-    src/app/style.h
-    resources.qrc
-)
+    src/app/camera.h
+    src/app/camera.cpp
+    src/app/renderer.h
+    src/app/renderpass.h
+    src/app/renderpass.cpp
+    src/app/renderer.cpp
+    src/app/scene.h
 
-add_library(core STATIC
-    src/core/camera.h
-    src/core/renderer.h
-    src/core/scene.h
-    src/core/camera.cpp
-    src/core/renderer.cpp
-    src/core/scene.cpp
-    src/core/graphicscomponents.h
-    src/core/graphicscomponents.cpp
-    src/core/enginewidget.h
-    src/core/enginewidget.cpp
-    src/core/assetmanager.h
-    src/core/assetmanager.cpp
-    src/core/entity.h
+    resources.qrc
     shaders/zpass.vert
     shaders/zpass.frag
     shaders/base.frag
@@ -54,32 +43,12 @@ add_library(core STATIC
     shaders/postprocess.vert
 )
 
-target_link_libraries(core PRIVATE
-    Qt${QT_VERSION_MAJOR}::Widgets
-    Qt${QT_VERSION_MAJOR}::OpenGL
-    Qt${QT_VERSION_MAJOR}::OpenGLWidgets
-)
-
-target_include_directories(core PUBLIC
-    ${CMAKE_SOURCE_DIR}/src/core
-)
-
-file(READ "${CMAKE_SOURCE_DIR}/styles/menu.qss" QSS_CONTENT)
-string(REPLACE "\n" " " QSS_CONTENT "${QSS_CONTENT}")
-string(REPLACE "\"" "\\\"" QSS_CONTENT "${QSS_CONTENT}")
-set(STYLESHEET "${QSS_CONTENT}")
-configure_file(${CMAKE_SOURCE_DIR}/styles/style_template.h.in ${CMAKE_SOURCE_DIR}/src/style.h @ONLY)
-
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(blocks
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
     )
 endif()
-
-target_include_directories(blocks PRIVATE
-    ${CMAKE_SOURCE_DIR}/src/core
-)
 
 target_link_libraries(blocks PRIVATE
     Qt${QT_VERSION_MAJOR}::Widgets
