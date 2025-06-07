@@ -7,9 +7,9 @@
 
 #include "app.h"
 
-Editor::Editor(QWidget* parent) : QWidget(parent) {
-    QSharedPointer<Camera> camera(new Camera());
-    m_renderer = new BlocksRenderer(this, std::move(camera));
+Editor::Editor(QWidget* parent) : QWidget(parent), m_camera{}, m_cameraController{m_camera, 50.0f, 0.5f}, m_renderer{new BlocksRenderer(this, &m_camera)} {
+    m_inputManager = new InputManager(this);
+    connect(m_inputManager, &InputManager::inputUpdated, this, &Editor::onInputUpdate);
 
     setFocusPolicy(Qt::StrongFocus);
     cursor().setPos(mapToGlobal(rect().center()));
@@ -18,28 +18,21 @@ Editor::Editor(QWidget* parent) : QWidget(parent) {
 }
 
 void Editor::keyPressEvent(QKeyEvent *event) {
-    switch (event->key()) {
-    case Qt::Key_W: {
-        m_cameraController.moveForward(-m_deltaTime);
-        break;
-    }
-    case Qt::Key_S: {
-        m_cameraController.moveForward(m_deltaTime);
-        break;
-    }
-    case Qt::Key_A: {
-        m_cameraController.moveRight(-m_deltaTime);
-        break;
-    }
-    case Qt::Key_D: {
-         m_cameraController.moveRight(m_deltaTime);
-        break;
-    }
-    case Qt::Key_Escape: {
+    m_inputManager->keyPressed(event);
+}
+
+void Editor::keyReleaseEvent(QKeyEvent *event) {
+    m_inputManager->keyReleased(event);
+}
+
+void Editor::onInputUpdate(const QSet<int> &keys) {
+    if (keys.contains(Qt::Key_W)) m_cameraController.moveForward(-m_deltaTime);
+    if (keys.contains(Qt::Key_S)) m_cameraController.moveForward(m_deltaTime);
+    if (keys.contains(Qt::Key_A)) m_cameraController.moveRight(-m_deltaTime);
+    if (keys.contains(Qt::Key_D)) m_cameraController.moveRight(m_deltaTime);
+    if (keys.contains(Qt::Key_Escape)) {
         App::instance()->setOverrideCursor( QCursor( Qt::ArrowCursor ) );
         clearFocus();
-        break;
-    }
     }
 }
 
@@ -71,10 +64,10 @@ void Editor::mousePressEvent(QMouseEvent *event) {
 }
 
 void Editor::wheelEvent(QWheelEvent *event) {
-    // m_viewport.setFov(m_viewport.fov() - event->angleDelta().y() / 120);
+    m_camera.setFov(m_camera.fov() - event->angleDelta().y() / 120);
 
-    // if (m_viewport.fov() < 1.0f)
-    //     m_viewport.setFov(1.0f);
-    // if (m_viewport.fov() > 120.0f)
-    //     m_viewport.setFov(120.0f);
+    if (m_camera.fov() < 1.0f)
+        m_camera.setFov(1.0f);
+    if (m_camera.fov() > 120.0f)
+        m_camera.setFov(120.0f);
 }

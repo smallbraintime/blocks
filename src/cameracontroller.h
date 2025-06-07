@@ -4,11 +4,9 @@
 
 class CameraController {
 public:
-    CameraController() = default;
-    explicit CameraController(QSharedPointer<Camera> camera, float speed, float sentisivity)
-        : m_camera(std::move(camera)), m_speed(speed), m_sentisivity(sentisivity) {}
+    explicit CameraController(Camera& camera, float speed, float sentisivity)
+        : m_camera(camera), m_speed(speed), m_sentisivity(sentisivity) {}
 
-    void setCamera(QSharedPointer<Camera> camera) { m_camera = camera; }
     void moveForward(float axis);
     void moveRight(float axis);
     void pitch(float angle);
@@ -20,7 +18,7 @@ public:
     float sentisivity() const { return m_sentisivity; }
 
 private:
-    QSharedPointer<Camera> m_camera;
+    Camera& m_camera;
     float m_speed;
     float m_sentisivity;
     float m_pitch;

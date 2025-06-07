@@ -14,7 +14,7 @@
 #include "camera.h"
 
 struct RenderContext {
-    QSharedPointer<Camera> camera;
+    Camera* camera;
     QOpenGLVertexArrayObject vao;
     QOpenGLBuffer vbo{QOpenGLBuffer::VertexBuffer};
     QOpenGLBuffer ebo{QOpenGLBuffer::IndexBuffer};
@@ -25,7 +25,7 @@ class BlocksRenderer: public QOpenGLWidget, protected  QOpenGLFunctions {
     Q_OBJECT
 
 public:
-    BlocksRenderer(QWidget* parent = nullptr, QSharedPointer<Camera> camera = {});
+    explicit BlocksRenderer(QWidget* parent, Camera* camera);
 
     void setBuffer(const QVector<QColor>& blocks);
     void render();

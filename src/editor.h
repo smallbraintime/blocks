@@ -2,30 +2,38 @@
 
 #include <QWidget>
 
-#include "scene.h"
 #include "renderer.h"
 #include "cameracontroller.h"
+#include "inputmanager.h"
+
+#define CHUNK_SIZE 1000
 
 class Editor: public QWidget {
     Q_OBJECT
 
 public:
-    Editor(QWidget* parent = nullptr);
+    explicit Editor(QWidget* parent = nullptr);
 
 protected:
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;
     void keyPressEvent(QKeyEvent *event) override;
+    void keyReleaseEvent(QKeyEvent *event) override;
 
 private:
     BlocksRenderer* m_renderer;
-    Scene m_scene;
+    InputManager* m_inputManager;
     CameraController m_cameraController;
+    QVector<QColor> m_blocks{CHUNK_SIZE};
+    Camera m_camera;
     float m_deltaTime;
     float m_firstMouse;
     float m_lastx;
     float m_lasty;
+
+private slots:
+    void onInputUpdate(const QSet<int>& keys);
 };
 
 
