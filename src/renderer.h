@@ -6,6 +6,7 @@
 #include <QOpenGLVertexArrayObject>
 #include <QSharedPointer>
 #include <QOpenGLBuffer>
+#include <QOpenGLExtraFunctions>
 #include <memory>
 
 #include "renderpass.h"
@@ -19,7 +20,7 @@ struct RenderContext {
     QOpenGLBuffer ssbo;
 };
 
-class BlocksRenderer: protected QOpenGLFunctions, QOpenGLWidget {
+class BlocksRenderer: public QOpenGLWidget, protected  QOpenGLFunctions {
     Q_OBJECT
 
 public:

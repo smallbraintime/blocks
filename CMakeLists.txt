@@ -13,25 +13,26 @@ find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets OpenGLWidgets OpenGL)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets OpenGLWidgets OpenGL)
 
 set(PROJECT_SOURCES
-    src/app/main.cpp
-    src/app/app.h
-    src/app/app.cpp
-    src/app/menu.h
-    src/app/menu.cpp
-    src/app/editor.h
-    src/app/editor.cpp
-    src/app/serializer.h
-    src/app/serializer.cpp
-    src/app/cameracontroller.h
-    src/app/cameracontroller.cpp
-    src/app/camera.h
-    src/app/camera.cpp
-    src/app/renderer.h
-    src/app/renderpass.h
-    src/app/renderpass.cpp
-    src/app/renderer.cpp
-    src/app/scene.h
+    src/main.cpp
+    src/app.h
+    src/app.cpp
+    src/menu.h
+    src/menu.cpp
+    src/editor.h
+    src/editor.cpp
+    src/serializer.h
+    src/serializer.cpp
+    src/cameracontroller.h
+    src/cameracontroller.cpp
+    src/camera.h
+    src/camera.cpp
+    src/renderer.h
+    src/renderpass.h
+    src/renderpass.cpp
+    src/renderer.cpp
+    src/scene.h
 
+    resources.qrc
     resources/shaders/zpass.vert
     resources/shaders/zpass.frag
     resources/shaders/base.frag
@@ -40,19 +41,6 @@ set(PROJECT_SOURCES
     resources/shaders/lighting.vert
     resources/shaders/postprocess.frag
     resources/shaders/postprocess.vert
-)
-
-qt_add_resources(PROJECT_SOURCES
-    PREFIX "/resources"
-    FILES
-        shaders/base.frag
-        shaders/base.vert
-        shaders/lighting.frag
-        shaders/lighting.vert
-        shaders/postprocess.frag
-        shaders/postprocess.vert
-        shaders/zpass.frag
-        shaders/zpass.vert
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -66,7 +54,6 @@ target_link_libraries(blocks PRIVATE
     Qt${QT_VERSION_MAJOR}::Widgets
     Qt${QT_VERSION_MAJOR}::OpenGL
     Qt${QT_VERSION_MAJOR}::OpenGLWidgets
-    core
 )
 
 if(${QT_VERSION} VERSION_LESS 6.1.0)
