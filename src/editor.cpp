@@ -7,7 +7,7 @@
 
 #include "app.h"
 
-Editor::Editor(QWidget* parent) : QWidget(parent), m_camera{}, m_cameraController{m_camera, 50.0f, 0.5f}, m_renderer{new BlocksRenderer(this, &m_camera)} {
+Editor::Editor(QWidget* parent) : QWidget(parent), m_camera{}, m_cameraController{m_camera, 50.0f, 0.5f}, m_renderer{new BlocksRenderer(this, &m_camera, &m_pointedBlock)} {
     m_inputManager = new InputManager(this);
     connect(m_inputManager, &InputManager::inputUpdated, this, &Editor::onInputUpdate);
 

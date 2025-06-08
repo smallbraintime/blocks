@@ -33,30 +33,10 @@ void Menu::createEditMenu() {
                                tr("&Undo"), this);
     m_redoAction = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::EditRedo),
                                tr("&Redo"), this);
-    m_copyAction = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::EditCopy),
-                               tr("&Copy"), this);
-    m_cutAction = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::EditCut),
-                              tr("&Cut"), this);
-    m_pasteAction = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::EditPaste),
-                                tr("&Paste"), this);
     m_modifyAction = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::DocumentProperties),
                                 tr("&Modify"), this);
-    m_selectAllAction = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::EditSelectAll),
-                                tr("&Select All"), this);
-    m_clearSelectionAction = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::EditClear),
-                                    tr("&Clear Selection"), this);
-    m_deleteAction = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::EditDelete),
-                                    tr("&Delete"), this);
     m_editMenu = new QMenu(tr("&Edit"));
-    m_editMenu->addActions({m_undoAction,
-                            m_redoAction,
-                            m_copyAction,
-                            m_cutAction,
-                            m_pasteAction,
-                            m_modifyAction,
-                            m_selectAllAction,
-                            m_clearSelectionAction,
-                            m_deleteAction});
+    m_editMenu->addActions({m_undoAction, m_redoAction, m_modifyAction});
 }
 
 void Menu::createHelpMenu() {

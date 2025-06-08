@@ -1,13 +1,13 @@
 #pragma once
 
 #include <QOpenGLWidget>
-#include <QOpenGLFunctions>
+#include <QOpenGLFunctions_4_3_Core>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLVertexArrayObject>
 #include <QSharedPointer>
 #include <QOpenGLBuffer>
-#include <QOpenGLExtraFunctions>
 #include <QWidget>
+#include <QVector3D>
 #include <memory>
 
 #include "renderpass.h"
@@ -19,16 +19,20 @@ struct RenderContext {
     QOpenGLBuffer vbo{QOpenGLBuffer::VertexBuffer};
     QOpenGLBuffer ebo{QOpenGLBuffer::IndexBuffer};
     QOpenGLBuffer ssbo;
+    QVector3D* pointedBlock;
 };
 
-class BlocksRenderer: public QOpenGLWidget, protected  QOpenGLFunctions {
+struct Color {
+    float r, g, b, a;
+};
+
+class BlocksRenderer: public QOpenGLWidget, protected QOpenGLFunctions_4_3_Core {
     Q_OBJECT
 
 public:
-    explicit BlocksRenderer(QWidget* parent, Camera* camera);
+    explicit BlocksRenderer(QWidget* parent, Camera* camera, QVector3D* pointedBlock);
 
-    void setBuffer(const QVector<QColor>& blocks);
-    void render();
+    void setBuffer(const QVector<Color>& blocks);
 
 protected:
     virtual void initializeGL() override;
@@ -36,6 +40,6 @@ protected:
     virtual void paintGL() override;
 
 private:
-    QVector<std::unique_ptr<RenderPass>> m_renderPasses;
+    std::unique_ptr<RenderPass> m_renderPasses[2];
     RenderContext m_renderContext;
 };

@@ -25,7 +25,8 @@ private:
     BlocksRenderer* m_renderer;
     InputManager* m_inputManager;
     CameraController m_cameraController;
-    QVector<QColor> m_blocks{CHUNK_SIZE};
+    QVector<Color> m_blocks{CHUNK_SIZE};
+    QVector3D m_pointedBlock;
     Camera m_camera;
     float m_deltaTime;
     float m_firstMouse;

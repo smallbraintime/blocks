@@ -1,13 +1,8 @@
-<!DOCTYPE RCC>
-<RCC version="1.0">
+<RCC>
     <qresource prefix="/shaders">
         <file>resources/shaders/base.frag</file>
         <file>resources/shaders/base.vert</file>
-        <file>resources/shaders/lighting.frag</file>
-        <file>resources/shaders/lighting.vert</file>
-        <file>resources/shaders/postprocess.frag</file>
-        <file>resources/shaders/postprocess.vert</file>
-        <file>resources/shaders/zpass.frag</file>
-        <file>resources/shaders/zpass.vert</file>
+        <file>resources/shaders/fxaa.vert</file>
+        <file>resources/shaders/fxaa.frag</file>
     </qresource>
 </RCC>

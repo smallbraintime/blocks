@@ -34,14 +34,12 @@ set(PROJECT_SOURCES
     src/inputmanager.cpp
 
     resources.qrc
-    resources/shaders/zpass.vert
-    resources/shaders/zpass.frag
+
+
     resources/shaders/base.frag
     resources/shaders/base.vert
-    resources/shaders/lighting.frag
-    resources/shaders/lighting.vert
-    resources/shaders/postprocess.frag
-    resources/shaders/postprocess.vert
+    resources/shaders/fxaa.frag
+    resources/shaders/fxaa.vert
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
