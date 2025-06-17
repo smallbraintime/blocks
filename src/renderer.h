@@ -8,12 +8,14 @@
 #include <QOpenGLBuffer>
 #include <QWidget>
 #include <QVector3D>
+#include <QColor>
 #include <memory>
 
 #include "renderpass.h"
 #include "camera.h"
 
 struct RenderContext {
+    QOpenGLFunctions_4_3_Core* funcs;
     Camera* camera;
     QOpenGLVertexArrayObject vao;
     QOpenGLBuffer vbo{QOpenGLBuffer::VertexBuffer};
@@ -22,17 +24,13 @@ struct RenderContext {
     QVector3D* pointedBlock;
 };
 
-struct Color {
-    float r, g, b, a;
-};
-
 class BlocksRenderer: public QOpenGLWidget, protected QOpenGLFunctions_4_3_Core {
     Q_OBJECT
 
 public:
     explicit BlocksRenderer(QWidget* parent, Camera* camera, QVector3D* pointedBlock);
 
-    void setBuffer(const QVector<Color>& blocks);
+    void setBuffer(const QVector<QColor>& blocks);
 
 protected:
     virtual void initializeGL() override;

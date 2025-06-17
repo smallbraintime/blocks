@@ -1,12 +1,13 @@
 #pragma once
 
 #include <QWidget>
+#include <QColor>
 
 #include "renderer.h"
 #include "cameracontroller.h"
 #include "inputmanager.h"
 
-#define CHUNK_SIZE 1000
+#define CHUNK_SIZE 1000000
 
 class Editor: public QWidget {
     Q_OBJECT
@@ -25,10 +26,10 @@ private:
     BlocksRenderer* m_renderer;
     InputManager* m_inputManager;
     CameraController m_cameraController;
-    QVector<Color> m_blocks{CHUNK_SIZE};
+    QVector<QColor> m_blocks{CHUNK_SIZE};
     QVector3D m_pointedBlock;
     Camera m_camera;
-    float m_deltaTime;
+    float m_deltaTime = 1.0;
     float m_firstMouse;
     float m_lastx;
     float m_lasty;

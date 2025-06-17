@@ -4,17 +4,25 @@
 #include <QMatrix4x4>
 #include <QKeyEvent>
 #include <QSharedPointer>
+#include <QVBoxLayout>
 
 #include "app.h"
 
-Editor::Editor(QWidget* parent) : QWidget(parent), m_camera{}, m_cameraController{m_camera, 50.0f, 0.5f}, m_renderer{new BlocksRenderer(this, &m_camera, &m_pointedBlock)} {
+Editor::Editor(QWidget* parent) : QWidget(parent), m_camera{}, m_cameraController{&m_camera, .05f, 0.05f}, m_renderer{new BlocksRenderer(this, &m_camera, &m_pointedBlock)} {
     m_inputManager = new InputManager(this);
     connect(m_inputManager, &InputManager::inputUpdated, this, &Editor::onInputUpdate);
+
+    // m_blocks.fill(QColor(255, 255, 255, 255), CHUNK_SIZE);
+    // m_renderer->setBuffer(m_blocks);
+
+    QVBoxLayout* layout = new QVBoxLayout(this);
+    layout->setContentsMargins(0,0,0,0);
+    layout->addWidget(m_renderer);
 
     setFocusPolicy(Qt::StrongFocus);
     cursor().setPos(mapToGlobal(rect().center()));
     setMouseTracking(true);
-    setAttribute(Qt::WA_InputMethodEnabled, false);
+    //setAttribute(Qt::WA_InputMethodEnabled, false);
 }
 
 void Editor::keyPressEvent(QKeyEvent *event) {
@@ -40,6 +48,10 @@ void Editor::mouseMoveEvent(QMouseEvent *event) {
     if (hasFocus()) {
         float xPos = event->globalPosition().x();
         float yPos = event->globalPosition().y();
+
+        cursor().setPos(mapToGlobal(rect().center()));
+        m_lastx = mapToGlobal(rect().center()).x();
+        m_lasty = mapToGlobal(rect().center()).y();
 
         if (m_firstMouse) {
             m_lastx = xPos;

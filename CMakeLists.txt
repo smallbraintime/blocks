@@ -12,6 +12,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets OpenGLWidgets OpenGL)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets OpenGLWidgets OpenGL)
 
+qt_add_resources(PROJECT_RESOURCES resources.qrc)
+
 set(PROJECT_SOURCES
     src/main.cpp
     src/app.h
@@ -33,19 +35,18 @@ set(PROJECT_SOURCES
     src/inputmanager.h
     src/inputmanager.cpp
 
-    resources.qrc
-
-
-    resources/shaders/base.frag
-    resources/shaders/base.vert
-    resources/shaders/fxaa.frag
-    resources/shaders/fxaa.vert
+    # resources.qrc
+    # resources/shaders/base.frag
+    # resources/shaders/base.vert
+    # resources/shaders/fxaa.frag
+    # resources/shaders/fxaa.vert
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(blocks
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
+        ${PROJECT_RESOURCES}
     )
 endif()
 

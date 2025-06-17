@@ -4,7 +4,7 @@
 
 class CameraController {
 public:
-    explicit CameraController(Camera& camera, float speed, float sentisivity)
+    explicit CameraController(Camera* camera, float speed, float sentisivity)
         : m_camera(camera), m_speed(speed), m_sentisivity(sentisivity) {}
 
     void moveForward(float axis);
@@ -18,7 +18,7 @@ public:
     float sentisivity() const { return m_sentisivity; }
 
 private:
-    Camera& m_camera;
+    Camera* m_camera;
     float m_speed;
     float m_sentisivity;
     float m_pitch;

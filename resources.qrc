@@ -1,8 +1,8 @@
 <RCC>
     <qresource prefix="/shaders">
-        <file>resources/shaders/base.frag</file>
-        <file>resources/shaders/base.vert</file>
-        <file>resources/shaders/fxaa.vert</file>
-        <file>resources/shaders/fxaa.frag</file>
+        <file alias="base.frag">resources/shaders/base.frag</file>
+        <file alias="base.vert">resources/shaders/base.vert</file>
+        <file alias="fxaa.vert">resources/shaders/fxaa.vert</file>
+        <file alias="fxaa.frag">resources/shaders/fxaa.frag</file>
     </qresource>
 </RCC>

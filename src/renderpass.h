@@ -1,11 +1,10 @@
 #pragma once
 
 #include <QOpenGLShaderProgram>
-#include <QOpenGLFunctions_4_3_Core>
 
 class RenderContext;
 
-struct RenderPass: protected QOpenGLFunctions_4_3_Core {
+struct RenderPass {
     virtual ~RenderPass() {}
     virtual void render(RenderContext& sceneData) = 0;
 };
