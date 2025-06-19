@@ -4,5 +4,7 @@
         <file alias="base.vert">resources/shaders/base.vert</file>
         <file alias="fxaa.vert">resources/shaders/fxaa.vert</file>
         <file alias="fxaa.frag">resources/shaders/fxaa.frag</file>
+        <file>background.vert</file>
+        <file>background.frag</file>
     </qresource>
 </RCC>

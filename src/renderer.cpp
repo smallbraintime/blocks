@@ -61,14 +61,12 @@ void BlocksRenderer::initializeGL() {
     m_renderContext.ebo.setUsagePattern(QOpenGLBuffer::StaticDraw);
     m_renderContext.ebo.allocate(indicies, indiciesSize * sizeof(unsigned int));
 
-    m_renderPasses[0] = std::make_unique<BasePass>();
-    // m_renderPasses[1] = std::make_unique<FXAAPass>();
-
     m_renderContext.vao.release();
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
     glDepthMask(GL_TRUE);
+    glEnable(GL_MULTISAMPLE);
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
     if (!m_renderContext.ssbo.create()) {
@@ -80,14 +78,26 @@ void BlocksRenderer::initializeGL() {
     };
 
     QVector<Color> blocks;
-    for (size_t i = 0; i < 10000; ++i) {
-        blocks.append(Color{QRandomGenerator::global()->bounded(255), QRandomGenerator::global()->bounded(255), QRandomGenerator::global()->bounded(255), QRandomGenerator::global()->bounded(255)});
+    for (size_t i = 0; i < 1000; ++i) {
+        blocks.append(Color{QRandomGenerator::global()->bounded(255), QRandomGenerator::global()->bounded(255), QRandomGenerator::global()->bounded(255), QRandomGenerator::global()->bounded(2) * 255});
     }
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_renderContext.ssbo.bufferId());
     glBufferData(GL_SHADER_STORAGE_BUFFER, blocks.size() * sizeof(Color), blocks.constData(), GL_DYNAMIC_DRAW);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_renderContext.ssbo.bufferId());
+
+    m_renderPasses[0] = std::make_unique<BackgroundPass>();
+    m_renderPasses[1] = std::make_unique<BasePass>();
+    m_renderPasses[2] = std::make_unique<FXAAPass>();
+
+    for (auto& pass : m_renderPasses) {
+        if (pass) pass->init(m_renderContext.funcs);
+    }
+
+    GLint samples = 0;
+    glGetIntegerv(GL_SAMPLES, &samples);
+    qDebug() << "MSAA Samples:" << samples;
 }
 
 void BlocksRenderer::resizeGL(int w, int h) {
@@ -98,12 +108,9 @@ void BlocksRenderer::resizeGL(int w, int h) {
 void BlocksRenderer::paintGL() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    if (m_renderPasses[0]) {
-        m_renderPasses[0]->render(m_renderContext);
+    for (auto& pass : m_renderPasses) {
+        if (pass) pass->render(m_renderContext);
     }
-    // for (auto& pass : m_renderPasses) {
-    //     if (pass) pass->render(m_renderContext);
-    // }
 
     update();
 }

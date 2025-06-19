@@ -38,6 +38,6 @@ protected:
     virtual void paintGL() override;
 
 private:
-    std::unique_ptr<RenderPass> m_renderPasses[2];
+    std::unique_ptr<RenderPass> m_renderPasses[3];
     RenderContext m_renderContext;
 };

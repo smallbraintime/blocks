@@ -1,10 +1,28 @@
 #include "renderpass.h"
 
-#include <QOpenGLFunctions_4_3_Core>
-
 #include "renderer.h"
 
-BasePass::BasePass() {
+void BackgroundPass::init(QOpenGLFunctions_4_3_Core* funcs) {
+    if (!m_shaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/background.vert")) {
+        qWarning("Failed to add vertex shader.");
+    }
+    if (!m_shaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/background.frag")) {
+        qWarning("Failed to add fragment shader.");
+    }
+    if (!m_shaderProgram.link()) {
+        qWarning("Failed to link shaders.");
+    }
+}
+
+void BackgroundPass::render(RenderContext &renderContext) {
+    glDisable(GL_DEPTH_TEST);
+    m_shaderProgram.bind();
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    m_shaderProgram.release();
+    glEnable(GL_DEPTH_TEST);
+}
+
+void BasePass::init(QOpenGLFunctions_4_3_Core* funcs) {
     if (!m_shaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/base.vert")) {
         qWarning("Failed to add vertex shader.");
     }
@@ -35,7 +53,7 @@ void BasePass::render(RenderContext &renderContext) {
     m_shaderProgram.setUniformValue(m_uniformLocations.projection, renderContext.camera->projection());
 
     renderContext.funcs->glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, renderContext.ssbo.bufferId());
-    renderContext.funcs->glDrawElementsInstanced(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr , 10000);
+    renderContext.funcs->glDrawElementsInstanced(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr , 1000);
     //glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
 
     // TODO: fix this shit
@@ -54,7 +72,7 @@ void BasePass::render(RenderContext &renderContext) {
     m_shaderProgram.release();
 }
 
-FXAAPass::FXAAPass() {
+void FXAAPass::init(QOpenGLFunctions_4_3_Core* funcs) {
     if (!m_shaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/fxaa.vert")) {
         qWarning("Failed to add vertex shader.");
     }
@@ -69,7 +87,7 @@ FXAAPass::FXAAPass() {
 void FXAAPass::render(RenderContext &renderContext) {
     m_shaderProgram.bind();
 
-    // TODO: draw a dummy triangle to trigger fragment shader
+    glDrawArrays(GL_TRIANGLES, 0, 3);
 
     m_shaderProgram.release();
 }
