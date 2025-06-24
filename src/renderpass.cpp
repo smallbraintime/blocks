@@ -35,25 +35,31 @@ void BasePass::init(QOpenGLFunctions_4_3_Core* funcs) {
 
     m_uniformLocations.view = m_shaderProgram.uniformLocation("uView");
     m_uniformLocations.projection = m_shaderProgram.uniformLocation("uProjection");
+    m_uniformLocations.viewPos = m_shaderProgram.uniformLocation("uViewPos");
     if (m_uniformLocations.view == -1) {
         qWarning("Could not find uniform 'uView'");
     }
     if (m_uniformLocations.projection == -1) {
         qWarning("Could not find uniform 'uProjection'");
     }
+    if (m_uniformLocations.viewPos == -1) {
+        qWarning("Could not find uniform 'uViewPos'");
+    }
 }
 
 void BasePass::render(RenderContext &renderContext) {
+    glEnable(GL_CULL_FACE);
     m_shaderProgram.bind();
     renderContext.vao.bind();
     renderContext.funcs->glBindBuffer(GL_SHADER_STORAGE_BUFFER, renderContext.ssbo.bufferId());
-    renderContext.funcs->glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, renderContext.ssbo.bufferId());
+    renderContext.funcs->glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, renderContext.ssbo.bufferId());
+    renderContext.normalMap->bind();
 
     m_shaderProgram.setUniformValue(m_uniformLocations.view, renderContext.camera->view());
     m_shaderProgram.setUniformValue(m_uniformLocations.projection, renderContext.camera->projection());
+    m_shaderProgram.setUniformValue(m_uniformLocations.viewPos, renderContext.camera->position());
 
-    renderContext.funcs->glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, renderContext.ssbo.bufferId());
-    renderContext.funcs->glDrawElementsInstanced(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr , 1000);
+    renderContext.funcs->glDrawArraysInstanced(GL_TRIANGLES, 0, 36, 1000);
     //glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
 
     // TODO: fix this shit
@@ -70,24 +76,5 @@ void BasePass::render(RenderContext &renderContext) {
     renderContext.funcs->glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
     renderContext.vao.release();
     m_shaderProgram.release();
-}
-
-void FXAAPass::init(QOpenGLFunctions_4_3_Core* funcs) {
-    if (!m_shaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/fxaa.vert")) {
-        qWarning("Failed to add vertex shader.");
-    }
-    if (!m_shaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/fxaa.frag")) {
-        qWarning("Failed to add fragment shader.");
-    }
-    if (!m_shaderProgram.link()) {
-        qWarning("Failed to link shaders.");
-    }
-}
-
-void FXAAPass::render(RenderContext &renderContext) {
-    m_shaderProgram.bind();
-
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-
-    m_shaderProgram.release();
+    glDisable(GL_CULL_FACE);
 }

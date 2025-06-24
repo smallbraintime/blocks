@@ -9,6 +9,7 @@
 #include <QWidget>
 #include <QVector3D>
 #include <QColor>
+#include <QOpenGLTexture>
 #include <memory>
 
 #include "renderpass.h"
@@ -19,8 +20,8 @@ struct RenderContext {
     Camera* camera;
     QOpenGLVertexArrayObject vao;
     QOpenGLBuffer vbo{QOpenGLBuffer::VertexBuffer};
-    QOpenGLBuffer ebo{QOpenGLBuffer::IndexBuffer};
     QOpenGLBuffer ssbo;
+    QOpenGLTexture* normalMap;
     QVector3D* pointedBlock;
 };
 
@@ -38,6 +39,6 @@ protected:
     virtual void paintGL() override;
 
 private:
-    std::unique_ptr<RenderPass> m_renderPasses[3];
+    std::unique_ptr<RenderPass> m_renderPasses[2];
     RenderContext m_renderContext;
 };

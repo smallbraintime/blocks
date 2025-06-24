@@ -2,9 +2,10 @@
     <qresource prefix="/shaders">
         <file alias="base.frag">resources/shaders/base.frag</file>
         <file alias="base.vert">resources/shaders/base.vert</file>
-        <file alias="fxaa.vert">resources/shaders/fxaa.vert</file>
-        <file alias="fxaa.frag">resources/shaders/fxaa.frag</file>
-        <file>background.vert</file>
-        <file>background.frag</file>
+        <file alias="background.frag">resources/shaders/background.frag</file>
+        <file alias="background.vert">resources/shaders/background.vert</file>
     </qresource>
+    <qresource prefix="/assets">
+      	<file alias="normal.png">resources/assets/normal.png</file>
+    </qresource>    
 </RCC>

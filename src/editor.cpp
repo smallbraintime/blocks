@@ -34,10 +34,13 @@ void Editor::keyReleaseEvent(QKeyEvent *event) {
 }
 
 void Editor::onInputUpdate(const QSet<int> &keys) {
-    if (keys.contains(Qt::Key_W)) m_cameraController.moveForward(-m_deltaTime);
-    if (keys.contains(Qt::Key_S)) m_cameraController.moveForward(m_deltaTime);
-    if (keys.contains(Qt::Key_A)) m_cameraController.moveRight(-m_deltaTime);
-    if (keys.contains(Qt::Key_D)) m_cameraController.moveRight(m_deltaTime);
+    float delta = m_deltaTime;
+    if (keys.contains(Qt::Key_Shift)) delta *= 2;
+    if (keys.contains(Qt::Key_Space)) m_cameraController.moveUp(delta);
+    if (keys.contains(Qt::Key_W)) m_cameraController.moveForward(-delta);
+    if (keys.contains(Qt::Key_S)) m_cameraController.moveForward(delta);
+    if (keys.contains(Qt::Key_A)) m_cameraController.moveRight(-delta);
+    if (keys.contains(Qt::Key_D)) m_cameraController.moveRight(delta);
     if (keys.contains(Qt::Key_Escape)) {
         App::instance()->setOverrideCursor( QCursor( Qt::ArrowCursor ) );
         clearFocus();

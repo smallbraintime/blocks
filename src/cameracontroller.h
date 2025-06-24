@@ -9,6 +9,7 @@ public:
 
     void moveForward(float axis);
     void moveRight(float axis);
+    void moveUp(float axis);
     void pitch(float angle);
     void yaw(float angle);
     void setSpeed(float speed) { m_speed = speed; }

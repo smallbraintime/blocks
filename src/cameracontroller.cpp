@@ -8,6 +8,10 @@ void CameraController::moveRight(float axis) {
     m_camera->translate({m_speed * axis, 0.0f, 0.0f});
 }
 
+void CameraController::moveUp(float axis) {
+    m_camera->translate({0.0f, m_speed * axis, 0.0f});
+}
+
 void CameraController::pitch(float angle) {
     m_pitch += angle * m_sentisivity;
 

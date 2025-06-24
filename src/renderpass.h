@@ -32,14 +32,6 @@ private:
     struct UniformLocations {
         int view;
         int projection;
+        int viewPos;
     } m_uniformLocations;
-};
-
-class FXAAPass : public RenderPass {
-public:
-    void init(QOpenGLFunctions_4_3_Core* funcs) override;
-    void render(RenderContext& renderContext) override;
-
-private:
-    QOpenGLShaderProgram m_shaderProgram;
 };
