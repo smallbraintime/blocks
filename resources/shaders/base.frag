@@ -13,7 +13,9 @@ out vec4 oFragColor;
 vec3 lightPos = vec3(0.0, 25.0, 0.0);
 vec3 lightColor = vec3(1.0, 0.824, 0.588);
 float ambientStrength = 0.2;
-float specularStrength = 0.5;
+float diffuseStrength = 1.0;
+float specularStrength = 1.0;
+float shininess = 32.0;
 
 uniform sampler2D uNormalMap;
 
@@ -29,11 +31,13 @@ void main() {
 
     vec3 lightDir = normalize(lightPos - ioFragPos);
     float diff = max(dot(normal, lightDir), 0.0);
-    vec3 diffuse = diff * lightColor;
+    vec3 diffuse = diff * lightColor * diffuseStrength;
 
-    vec3 viewDir = normalize(ioViewPos - ioFragPos);
+    vec3 viewDir    = normalize(ioViewPos - ioFragPos);
+    vec3 halfwayDir = normalize(lightDir + viewDir);
+    //vec3 viewDir = normalize(ioViewPos - ioFragPos);
     vec3 reflectDir = reflect(-lightDir, normal);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+    float spec = pow(max(dot(normal, halfwayDir), 0.0), shininess);
     vec3 specular = specularStrength * spec * lightColor;
 
     vec3 result = (ambient + diffuse + specular) * ioColor.rgb;
