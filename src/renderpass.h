@@ -4,6 +4,7 @@
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLBuffer>
 #include <QOpenGLFunctions_4_3_Core>
+#include <QOpenGLTexture>
 
 class RenderContext;
 
@@ -20,6 +21,10 @@ public:
 
 private:
     QOpenGLShaderProgram m_shaderProgram;
+    struct UniformLocations {
+        int view;
+        int projection;
+    } m_uniformLocations;
 };
 
 class BasePass : public RenderPass {

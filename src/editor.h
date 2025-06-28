@@ -6,6 +6,7 @@
 #include "renderer.h"
 #include "cameracontroller.h"
 #include "inputmanager.h"
+#include "menu.h"
 
 #define CHUNK_SIZE 1000000
 
@@ -13,7 +14,7 @@ class Editor: public QWidget {
     Q_OBJECT
 
 public:
-    explicit Editor(QWidget* parent = nullptr);
+    explicit Editor(QWidget* parent = nullptr, Menu* menu = nullptr);
 
 protected:
     void mousePressEvent(QMouseEvent *event) override;
@@ -25,6 +26,7 @@ protected:
 private:
     BlocksRenderer* m_renderer;
     InputManager* m_inputManager;
+    Menu* m_menu;
     CameraController m_cameraController;
     QVector<QColor> m_blocks{CHUNK_SIZE};
     QVector3D m_pointedBlock;

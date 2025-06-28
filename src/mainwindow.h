@@ -9,17 +9,17 @@
 #include "menu.h"
 #include "editor.h"
 
-class App : public QApplication {
+class MainWindow : public QMainWindow {
+    Q_OBJECT
 public:
-    explicit App(int& argc, char** argv);
-    static App* instance();
+    explicit MainWindow(QWidget *parent = nullptr);
 
 private:
-    QMainWindow m_window;
     QStackedWidget* m_mainWidgets;
     Menu* m_menu;
     Editor* m_editor;
     QLabel* m_startPage;
+    QSurfaceFormat* m_surfaceFormat;
 
 public slots:
     void openEditor();

@@ -2,8 +2,6 @@
 
 #include <QCoreApplication>
 
-#include "app.h"
-
 Menu::Menu(QWidget* parent) : QMenuBar(parent) {
     createFileMenu();
     createEditMenu();
@@ -16,7 +14,7 @@ Menu::Menu(QWidget* parent) : QMenuBar(parent) {
 void Menu::createFileMenu() {
     m_openAction = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::DocumentNew),
                                tr("&Open"), this);
-    connect(m_openAction, &QAction::triggered, App::instance(), &App::openEditor);
+    connect(m_openAction, &QAction::triggered, this, &Menu::newTriggered);
     m_newAction = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::DocumentOpen),
                               tr("&New"), this);
     m_saveAction = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::DocumentSave),

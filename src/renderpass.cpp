@@ -1,5 +1,8 @@
 #include "renderpass.h"
 
+#include <QImage>
+#include <QDir>
+
 #include "renderer.h"
 
 void BackgroundPass::init(QOpenGLFunctions_4_3_Core* funcs) {
@@ -12,14 +15,34 @@ void BackgroundPass::init(QOpenGLFunctions_4_3_Core* funcs) {
     if (!m_shaderProgram.link()) {
         qWarning("Failed to link shaders.");
     }
+
+    m_uniformLocations.view = m_shaderProgram.uniformLocation("uView");
+    m_uniformLocations.projection = m_shaderProgram.uniformLocation("uProjection");
+    if (m_uniformLocations.view == -1) {
+        qWarning("Could not find uniform 'uView'");
+    }
+    if (m_uniformLocations.projection == -1) {
+        qWarning("Could not find uniform 'uProjection'");
+    }
 }
 
 void BackgroundPass::render(RenderContext &renderContext) {
-    glDisable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);
+    glDepthMask(GL_FALSE);
     m_shaderProgram.bind();
-    glDrawArrays(GL_TRIANGLES, 0, 6);
+    renderContext.vao.bind();
+
+    QMatrix4x4 view = renderContext.camera->view();
+    view.setColumn(3, QVector4D(0.0f, 0.0f, 0.0f, 1.0f));
+    m_shaderProgram.setUniformValue(m_uniformLocations.view, view);
+    m_shaderProgram.setUniformValue(m_uniformLocations.projection, renderContext.camera->projection());
+
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+
     m_shaderProgram.release();
-    glEnable(GL_DEPTH_TEST);
+    renderContext.vao.release();
+    glDepthMask(GL_TRUE);
+    glDepthFunc(GL_LESS);
 }
 
 void BasePass::init(QOpenGLFunctions_4_3_Core* funcs) {

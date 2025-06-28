@@ -1,20 +1,18 @@
 #version 430 core
 
-out vec3 oColor;
+out vec3 ioTexCoords;
+
+layout(location = 0) in vec3 aPosition;
+layout(location = 1) in vec2 aTexCoord;
+layout(location = 2) in vec3 aNormal;
+layout(location = 3) in vec3 aTangent;
+layout(location = 4) in vec3 aBitangent;
+
+uniform mat4 uView;
+uniform mat4 uProjection;
 
 void main() {
-    vec2 positions[6] = vec2[](
-        vec2(-1.0,  1.0),
-        vec2( 1.0,  1.0),
-        vec2(-1.0, -1.0),
-
-        vec2(-1.0, -1.0),
-        vec2( 1.0,  1.0),
-        vec2( 1.0, -1.0)
-    );
-
-    gl_Position = vec4(positions[gl_VertexID], 0.0, 1.0);
-
-    float lerpFactor = (positions[gl_VertexID].y + 1.0) / 2.0;
-    oColor = mix(vec3(0.4, 0.4, 0.4), vec3(0.2, 0.4, 1.0), lerpFactor);
+    ioTexCoords = aPosition;
+    vec4 pos = uProjection * uView * vec4(aPosition, 1.0);
+    gl_Position = pos.xyww;
 }

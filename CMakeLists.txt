@@ -16,8 +16,8 @@ qt_add_resources(PROJECT_RESOURCES resources.qrc)
 
 set(PROJECT_SOURCES
     src/main.cpp
-    src/app.h
-    src/app.cpp
+    src/mainwindow.h
+    src/mainwindow.cpp
     src/menu.h
     src/menu.cpp
     src/editor.h
@@ -47,6 +47,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
         ${PROJECT_RESOURCES}
+        src/data.h
     )
 endif()
 

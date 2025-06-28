@@ -10,6 +10,8 @@
 #include <QVector3D>
 #include <QColor>
 #include <QOpenGLTexture>
+#include <QOpenGLFramebufferObjectFormat>
+#include <QOpenGLFramebufferObject>
 #include <memory>
 
 #include "renderpass.h"
@@ -30,6 +32,7 @@ class BlocksRenderer: public QOpenGLWidget, protected QOpenGLFunctions_4_3_Core 
 
 public:
     explicit BlocksRenderer(QWidget* parent, Camera* camera, QVector3D* pointedBlock);
+    ~BlocksRenderer();
 
     void setBuffer(const QVector<QColor>& blocks);
 

@@ -6,6 +6,6 @@
         <file alias="background.vert">resources/shaders/background.vert</file>
     </qresource>
     <qresource prefix="/assets">
-      	<file alias="normal.png">resources/assets/normal.png</file>
+    	<file alias="normal.png">resources/assets/normal.png</file>
     </qresource>    
 </RCC>

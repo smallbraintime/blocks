@@ -5,6 +5,8 @@
 #include <QImage>
 #include <QImageReader>
 
+#include "data.h"
+
 BlocksRenderer::BlocksRenderer(QWidget* parent, Camera* camera, QVector3D* pointedBlock) : QOpenGLWidget(parent) {
     m_renderContext.funcs = this;
     m_renderContext.camera = camera;
@@ -12,77 +14,31 @@ BlocksRenderer::BlocksRenderer(QWidget* parent, Camera* camera, QVector3D* point
     setMouseTracking(true);
 }
 
+BlocksRenderer::~BlocksRenderer() {
+    delete m_renderContext.normalMap;
+}
+
 void BlocksRenderer::setBuffer(const QVector<QColor> &blocks) {
     m_renderContext.ssbo.bind();
     glBufferData(GL_SHADER_STORAGE_BUFFER, blocks.size() * sizeof(QColor), blocks.constData(), GL_DYNAMIC_DRAW);
     m_renderContext.ssbo.release();
-    //glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_renderContext.ssbo.bufferId());
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, m_renderContext.ssbo.bufferId());
 }
 
 void BlocksRenderer::initializeGL() {
     initializeOpenGLFunctions();
+
     if (!m_renderContext.vao.create()) {
         qWarning("Failed to create vao");
     }
     m_renderContext.vao.bind();
 
-    constexpr float vertices[] = {
-        -0.5f, -0.5f,  0.5f,   0.0f, 0.0f,   0.0f, 0.0f, 1.0f,    1.0f, 0.0f, 0.0f,    0.0f, 1.0f, 0.0f,
-        0.5f, -0.5f,  0.5f,   1.0f, 0.0f,   0.0f, 0.0f, 1.0f,    1.0f, 0.0f, 0.0f,    0.0f, 1.0f, 0.0f,
-        0.5f,  0.5f,  0.5f,   1.0f, 1.0f,   0.0f, 0.0f, 1.0f,    1.0f, 0.0f, 0.0f,    0.0f, 1.0f, 0.0f,
-
-        0.5f,  0.5f,  0.5f,   1.0f, 1.0f,   0.0f, 0.0f, 1.0f,    1.0f, 0.0f, 0.0f,    0.0f, 1.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,   0.0f, 1.0f,   0.0f, 0.0f, 1.0f,    1.0f, 0.0f, 0.0f,    0.0f, 1.0f, 0.0f,
-        -0.5f, -0.5f,  0.5f,   0.0f, 0.0f,   0.0f, 0.0f, 1.0f,    1.0f, 0.0f, 0.0f,    0.0f, 1.0f, 0.0f,
-
-        0.5f, -0.5f, -0.5f,   0.0f, 0.0f,   0.0f, 0.0f, -1.0f,   -1.0f, 0.0f, 0.0f,    0.0f, 1.0f, 0.0f,
-        -0.5f, -0.5f, -0.5f,   1.0f, 0.0f,   0.0f, 0.0f, -1.0f,   -1.0f, 0.0f, 0.0f,    0.0f, 1.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,   1.0f, 1.0f,   0.0f, 0.0f, -1.0f,   -1.0f, 0.0f, 0.0f,    0.0f, 1.0f, 0.0f,
-
-        -0.5f,  0.5f, -0.5f,   1.0f, 1.0f,   0.0f, 0.0f, -1.0f,   -1.0f, 0.0f, 0.0f,    0.0f, 1.0f, 0.0f,
-        0.5f,  0.5f, -0.5f,   0.0f, 1.0f,   0.0f, 0.0f, -1.0f,   -1.0f, 0.0f, 0.0f,    0.0f, 1.0f, 0.0f,
-        0.5f, -0.5f, -0.5f,   0.0f, 0.0f,   0.0f, 0.0f, -1.0f,   -1.0f, 0.0f, 0.0f,    0.0f, 1.0f, 0.0f,
-
-        -0.5f, -0.5f, -0.5f,   0.0f, 0.0f,  -1.0f, 0.0f, 0.0f,     0.0f, 0.0f, -1.0f,    0.0f, 1.0f, 0.0f,
-        -0.5f, -0.5f,  0.5f,   1.0f, 0.0f,  -1.0f, 0.0f, 0.0f,     0.0f, 0.0f, -1.0f,    0.0f, 1.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,   1.0f, 1.0f,  -1.0f, 0.0f, 0.0f,     0.0f, 0.0f, -1.0f,    0.0f, 1.0f, 0.0f,
-
-        -0.5f,  0.5f,  0.5f,   1.0f, 1.0f,  -1.0f, 0.0f, 0.0f,     0.0f, 0.0f, -1.0f,    0.0f, 1.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,   0.0f, 1.0f,  -1.0f, 0.0f, 0.0f,     0.0f, 0.0f, -1.0f,    0.0f, 1.0f, 0.0f,
-        -0.5f, -0.5f, -0.5f,   0.0f, 0.0f,  -1.0f, 0.0f, 0.0f,     0.0f, 0.0f, -1.0f,    0.0f, 1.0f, 0.0f,
-
-        0.5f, -0.5f,  0.5f,   0.0f, 0.0f,   1.0f, 0.0f, 0.0f,     0.0f, 0.0f, 1.0f,    0.0f, 1.0f, 0.0f,
-        0.5f, -0.5f, -0.5f,   1.0f, 0.0f,   1.0f, 0.0f, 0.0f,     0.0f, 0.0f, 1.0f,    0.0f, 1.0f, 0.0f,
-        0.5f,  0.5f, -0.5f,   1.0f, 1.0f,   1.0f, 0.0f, 0.0f,     0.0f, 0.0f, 1.0f,    0.0f, 1.0f, 0.0f,
-
-        0.5f,  0.5f, -0.5f,   1.0f, 1.0f,   1.0f, 0.0f, 0.0f,     0.0f, 0.0f, 1.0f,    0.0f, 1.0f, 0.0f,
-        0.5f,  0.5f,  0.5f,   0.0f, 1.0f,   1.0f, 0.0f, 0.0f,     0.0f, 0.0f, 1.0f,    0.0f, 1.0f, 0.0f,
-        0.5f, -0.5f,  0.5f,   0.0f, 0.0f,   1.0f, 0.0f, 0.0f,     0.0f, 0.0f, 1.0f,    0.0f, 1.0f, 0.0f,
-
-        -0.5f, -0.5f, -0.5f,   0.0f, 1.0f,   0.0f, -1.0f, 0.0f,     1.0f, 0.0f, 0.0f,    0.0f, 0.0f, 1.0f,
-        0.5f, -0.5f, -0.5f,   1.0f, 1.0f,   0.0f, -1.0f, 0.0f,     1.0f, 0.0f, 0.0f,    0.0f, 0.0f, 1.0f,
-        0.5f, -0.5f,  0.5f,   1.0f, 0.0f,   0.0f, -1.0f, 0.0f,     1.0f, 0.0f, 0.0f,    0.0f, 0.0f, 1.0f,
-
-        0.5f, -0.5f,  0.5f,   1.0f, 0.0f,   0.0f, -1.0f, 0.0f,     1.0f, 0.0f, 0.0f,    0.0f, 0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,   0.0f, 0.0f,   0.0f, -1.0f, 0.0f,     1.0f, 0.0f, 0.0f,    0.0f, 0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,   0.0f, 1.0f,   0.0f, -1.0f, 0.0f,     1.0f, 0.0f, 0.0f,    0.0f, 0.0f, 1.0f,
-
-        -0.5f,  0.5f, -0.5f,   0.0f, 1.0f,   0.0f, 1.0f, 0.0f,      1.0f, 0.0f, 0.0f,    0.0f, 0.0f, -1.0f,
-        0.5f,  0.5f,  0.5f,   1.0f, 0.0f,   0.0f, 1.0f, 0.0f,      1.0f, 0.0f, 0.0f,    0.0f, 0.0f, -1.0f,
-        0.5f,  0.5f, -0.5f,   1.0f, 1.0f,   0.0f, 1.0f, 0.0f,      1.0f, 0.0f, 0.0f,    0.0f, 0.0f, -1.0f,
-
-        0.5f,  0.5f,  0.5f,   1.0f, 0.0f,   0.0f, 1.0f, 0.0f,      1.0f, 0.0f, 0.0f,    0.0f, 0.0f, -1.0f,
-        -0.5f,  0.5f, -0.5f,   0.0f, 1.0f,   0.0f, 1.0f, 0.0f,      1.0f, 0.0f, 0.0f,    0.0f, 0.0f, -1.0f,
-        -0.5f,  0.5f,  0.5f,   0.0f, 0.0f,   0.0f, 1.0f, 0.0f,      1.0f, 0.0f, 0.0f,    0.0f, 0.0f, -1.0f
-    };
-
-    constexpr int verticiesSize = sizeof(vertices) / sizeof(float);
     if (!m_renderContext.vbo.create()) {
         qWarning("Failed to create vbo");
     }
     m_renderContext.vbo.bind();
     m_renderContext.vbo.setUsagePattern(QOpenGLBuffer::StaticDraw);
-    m_renderContext.vbo.allocate(vertices, verticiesSize * sizeof(float));
+    m_renderContext.vbo.allocate(CUBE_VERTICES, CUBE_VERTICES_SIZE * sizeof(float));
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
@@ -125,26 +81,28 @@ void BlocksRenderer::initializeGL() {
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, m_renderContext.ssbo.bufferId());
 
-    m_renderPasses[0] = std::make_unique<BackgroundPass>();
-    m_renderPasses[1] = std::make_unique<BasePass>();
-
-    for (auto& pass : m_renderPasses) {
-        if (pass) pass->init(m_renderContext.funcs);
-    }
-
     QImage normalMap;
     QImageReader ir(":/assets/normal.png");
     if (!ir.read(&normalMap)) qWarning() << "Cant read the image";
     normalMap = normalMap.convertToFormat(QImage::Format_RGB888);
 
     m_renderContext.normalMap = new QOpenGLTexture(QOpenGLTexture::Target2D);
-    m_renderContext.normalMap->create();
     m_renderContext.normalMap->setSize(normalMap.width(), normalMap.height(), 1);
+    m_renderContext.normalMap->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
+    m_renderContext.normalMap->setMagnificationFilter(QOpenGLTexture::Linear);
     m_renderContext.normalMap->setFormat(QOpenGLTexture::RGB8_UNorm);
     m_renderContext.normalMap->allocateStorage();
     m_renderContext.normalMap->setData(QOpenGLTexture::RGB, QOpenGLTexture::UInt8, normalMap.bits());
     if (!m_renderContext.normalMap->isCreated()) {
         qWarning() << "Normal map not created!";
+    }
+    m_renderContext.normalMap->generateMipMaps();
+
+    m_renderPasses[0] = std::make_unique<BasePass>();
+    m_renderPasses[1] = std::make_unique<BackgroundPass>();
+
+    for (auto& pass : m_renderPasses) {
+        if (pass) pass->init(m_renderContext.funcs);
     }
 }
 

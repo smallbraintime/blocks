@@ -10,7 +10,10 @@ class Menu : public QMenuBar {
 public:
     explicit Menu(QWidget* parent = nullptr);
 
-public:
+signals:
+    void newTriggered();
+
+private:
     QMenu* m_fileMenu;
     QMenu* m_editMenu;
     QMenu* m_helpMenu;

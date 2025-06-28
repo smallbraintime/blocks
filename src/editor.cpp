@@ -5,12 +5,17 @@
 #include <QKeyEvent>
 #include <QSharedPointer>
 #include <QVBoxLayout>
+#include <QWindow>
 
-#include "app.h"
-
-Editor::Editor(QWidget* parent) : QWidget(parent), m_camera{}, m_cameraController{&m_camera, .05f, 0.05f}, m_renderer{new BlocksRenderer(this, &m_camera, &m_pointedBlock)} {
+Editor::Editor(QWidget* parent, Menu* menu) : QWidget(parent), m_menu(menu), m_camera{}, m_cameraController{&m_camera, .05f, 0.05f}, m_renderer{new BlocksRenderer(this, &m_camera, &m_pointedBlock)} {
     m_inputManager = new InputManager(this);
     connect(m_inputManager, &InputManager::inputUpdated, this, &Editor::onInputUpdate);
+
+    QSurfaceFormat format;
+    format.setVersion(4, 1);
+    format.setProfile(QSurfaceFormat::CoreProfile);
+    format.setSamples(4);
+    m_renderer->setFormat(format);
 
     // m_blocks.fill(QColor(255, 255, 255, 255), CHUNK_SIZE);
     // m_renderer->setBuffer(m_blocks);
@@ -22,7 +27,7 @@ Editor::Editor(QWidget* parent) : QWidget(parent), m_camera{}, m_cameraControlle
     setFocusPolicy(Qt::StrongFocus);
     cursor().setPos(mapToGlobal(rect().center()));
     setMouseTracking(true);
-    //setAttribute(Qt::WA_InputMethodEnabled, false);
+    setAttribute(Qt::WA_InputMethodEnabled, false);
 }
 
 void Editor::keyPressEvent(QKeyEvent *event) {
@@ -42,7 +47,7 @@ void Editor::onInputUpdate(const QSet<int> &keys) {
     if (keys.contains(Qt::Key_A)) m_cameraController.moveRight(-delta);
     if (keys.contains(Qt::Key_D)) m_cameraController.moveRight(delta);
     if (keys.contains(Qt::Key_Escape)) {
-        App::instance()->setOverrideCursor( QCursor( Qt::ArrowCursor ) );
+        QApplication::setOverrideCursor( QCursor( Qt::ArrowCursor ) );
         clearFocus();
     }
 }
@@ -74,7 +79,7 @@ void Editor::mouseMoveEvent(QMouseEvent *event) {
 }
 
 void Editor::mousePressEvent(QMouseEvent *event) {
-    App::instance()->setOverrideCursor( QCursor( Qt::BlankCursor ) );
+    QApplication::setOverrideCursor( QCursor( Qt::BlankCursor ) );
     setFocus();
 }
 
