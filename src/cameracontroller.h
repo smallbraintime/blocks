@@ -7,6 +7,7 @@ public:
     explicit CameraController(Camera* camera, float speed, float sentisivity)
         : m_camera(camera), m_speed(speed), m_sentisivity(sentisivity) {}
 
+    void setCamera(Camera *camera) { m_camera = camera; }
     void moveForward(float axis);
     void moveRight(float axis);
     void moveUp(float axis);

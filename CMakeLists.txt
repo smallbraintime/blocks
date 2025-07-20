@@ -34,12 +34,7 @@ set(PROJECT_SOURCES
     src/renderer.cpp
     src/inputmanager.h
     src/inputmanager.cpp
-
-    # resources.qrc
-    # resources/shaders/base.frag
-    # resources/shaders/base.vert
-    # resources/shaders/fxaa.frag
-    # resources/shaders/fxaa.vert
+    src/data.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -47,7 +42,6 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
         ${PROJECT_RESOURCES}
-        src/data.h
     )
 endif()
 

@@ -26,5 +26,4 @@ private slots:
     void processInput() {
         emit inputUpdated(m_pressedKeys);
     }
-
 };

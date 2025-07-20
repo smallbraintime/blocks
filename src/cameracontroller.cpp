@@ -16,12 +16,13 @@ void CameraController::pitch(float angle) {
     m_pitch += angle * m_sentisivity;
 
     m_pitch = std::clamp(m_pitch, -89.0f, 89.0f);
-    m_camera->set_orientation({m_pitch, m_yaw, 0.0f});
+    m_camera->setOrientation({m_pitch, m_yaw, 0.0f});
 }
 
 void CameraController::yaw(float angle) {
     m_yaw += angle * m_sentisivity;
 
     m_pitch = std::clamp(m_pitch, -89.0f, 89.0f);
-    m_camera->set_orientation({m_pitch, m_yaw, 0.0f});
+    m_camera->setOrientation({m_pitch, m_yaw, 0.0f});
 }
+

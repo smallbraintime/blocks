@@ -4,8 +4,18 @@
         <file alias="base.vert">resources/shaders/base.vert</file>
         <file alias="background.frag">resources/shaders/background.frag</file>
         <file alias="background.vert">resources/shaders/background.vert</file>
+        <file alias="lightdepth.frag">resources/shaders/lightdepth.frag</file>
+        <file alias="lightdepth.vert">resources/shaders/lightdepth.vert</file>
+        <file alias="shadowmap.vert">resources/shaders/shadowmap.vert</file>
     </qresource>
     <qresource prefix="/assets">
-    	<file alias="normal.png">resources/assets/normal.png</file>
-    </qresource>    
+        <file alias="normal.png">resources/assets/normal.png</file>
+        <file alias="texture.png">resources/assets/texture.png</file>
+        <file alias="back.jpg">resources/assets/back.jpg</file>
+        <file alias="front.jpg">resources/assets/front.jpg</file>
+        <file alias="top.jpg">resources/assets/top.jpg</file>                
+        <file alias="bottom.jpg">resources/assets/bottom.jpg</file>
+        <file alias="left.jpg">resources/assets/left.jpg</file> 
+        <file alias="right.jpg">resources/assets/right.jpg</file>                
+    </qresource>
 </RCC>

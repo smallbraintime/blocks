@@ -19,12 +19,21 @@ out vec2 ioTexCoord;
 out vec3 ioNormal;
 out vec3 ioTangent;
 out vec3 ioBitangent;
+out vec4 ioFragPosLightSpace;
+out vec3 ioLightPos;
 
 uniform mat4 uView;
 uniform mat4 uProjection;
 uniform vec3 uViewPos;
+uniform mat4 uLightViewProj;
+uniform vec3 uLightPos;
 
 void main() {
+    // if (color[gl_InstanceID].a == 0.0) {
+    //     gl_Position = vec4(2.0, 2.0, 2.0, 1.0);
+    //     return;
+    // }
+
     ivec4 c = color[gl_InstanceID];
     ioColor = vec4(c.r, c.g, c.b, c.a) / 255.0;
 
@@ -35,12 +44,14 @@ void main() {
     vec3 modelPos = vec3(float(x), float(y), float(z));
     vec4 worldPos = vec4(aPosition + modelPos, 1.0);
 
+    gl_Position = uProjection * uView * worldPos;
+
     ioFragPos = vec3(worldPos.xyz);
     ioViewPos = uViewPos;
     ioTexCoord = aTexCoord;
     ioNormal = aNormal;
     ioTangent = aTangent;
     ioBitangent = aBitangent;
-
-    gl_Position = uProjection * uView * worldPos;
+    ioLightPos = uLightPos;
+    ioFragPosLightSpace = uLightViewProj * worldPos;
 }

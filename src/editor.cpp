@@ -39,6 +39,8 @@ void Editor::keyReleaseEvent(QKeyEvent *event) {
 }
 
 void Editor::onInputUpdate(const QSet<int> &keys) {
+    // m_cameraController.setCamera(m_renderer->m_renderContext.light.get());
+
     float delta = m_deltaTime;
     if (keys.contains(Qt::Key_Shift)) delta *= 2;
     if (keys.contains(Qt::Key_Space)) m_cameraController.moveUp(delta);

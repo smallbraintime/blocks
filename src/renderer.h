@@ -10,7 +10,6 @@
 #include <QVector3D>
 #include <QColor>
 #include <QOpenGLTexture>
-#include <QOpenGLFramebufferObjectFormat>
 #include <QOpenGLFramebufferObject>
 #include <memory>
 
@@ -24,7 +23,14 @@ struct RenderContext {
     QOpenGLBuffer vbo{QOpenGLBuffer::VertexBuffer};
     QOpenGLBuffer ssbo;
     QOpenGLTexture* normalMap;
+    QOpenGLTexture* texture;
+    QOpenGLFramebufferObject* fbo;
+    QOpenGLTexture* depthMap;
+    QOpenGLTexture* cubeMap;
+    std::unique_ptr<Camera> light;
     QVector3D* pointedBlock;
+    int m_screenWidth;
+    int m_screenHeight;
 };
 
 class BlocksRenderer: public QOpenGLWidget, protected QOpenGLFunctions_4_3_Core {
@@ -42,6 +48,7 @@ protected:
     virtual void paintGL() override;
 
 private:
-    std::unique_ptr<RenderPass> m_renderPasses[2];
+    std::unique_ptr<RenderPass> m_renderPasses[3];
+public:
     RenderContext m_renderContext;
 };
