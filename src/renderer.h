@@ -4,14 +4,13 @@
 #include <QOpenGLFunctions_4_3_Core>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLVertexArrayObject>
-#include <QSharedPointer>
 #include <QOpenGLBuffer>
-#include <QWidget>
 #include <QVector3D>
 #include <QColor>
 #include <QOpenGLTexture>
 #include <QOpenGLFramebufferObject>
 #include <memory>
+#include <vector>
 
 #include "renderpass.h"
 #include "camera.h"
@@ -48,7 +47,7 @@ protected:
     virtual void paintGL() override;
 
 private:
-    std::unique_ptr<RenderPass> m_renderPasses[3];
+    std::vector<std::unique_ptr<RenderPass>> m_renderPasses;
 public:
     RenderContext m_renderContext;
 };

@@ -12,30 +12,31 @@ layout(binding = 5, std430) readonly buffer colors {
     ivec4 color[];
 };
 
-out vec4 ioColor;
-out vec3 ioFragPos;
-out vec3 ioViewPos;
-out vec2 ioTexCoord;
-out vec3 ioNormal;
-out vec3 ioTangent;
-out vec3 ioBitangent;
-out vec4 ioFragPosLightSpace;
-out vec3 ioLightPos;
+out VS_OUT {
+    vec4 color;
+    vec3 fragPos;
+    vec3 cameraPos;
+    vec2 texCoord;
+    vec3 normal;
+    vec3 tangent;
+    vec3 bitangent;
+    vec4 fragPosLightSpace;
+    vec3 lightPos;
+} vs_out;
 
-uniform mat4 uView;
-uniform mat4 uProjection;
-uniform vec3 uViewPos;
+uniform mat4 uViewProj;
+uniform vec3 uCameraPos;
 uniform mat4 uLightViewProj;
 uniform vec3 uLightPos;
 
 void main() {
-    // if (color[gl_InstanceID].a == 0.0) {
-    //     gl_Position = vec4(2.0, 2.0, 2.0, 1.0);
-    //     return;
-    // }
+    if (color[gl_InstanceID].a == 0.0) {
+        gl_Position = vec4(2.0, 2.0, 2.0, 1.0);
+        return;
+    }
 
     ivec4 c = color[gl_InstanceID];
-    ioColor = vec4(c.r, c.g, c.b, c.a) / 255.0;
+    vs_out.color = vec4(c.r, c.g, c.b, c.a) / 255.0;
 
     int z = gl_InstanceID / (VECTOR_SIZE * VECTOR_SIZE);
     int r = gl_InstanceID % (VECTOR_SIZE * VECTOR_SIZE);
@@ -44,14 +45,14 @@ void main() {
     vec3 modelPos = vec3(float(x), float(y), float(z));
     vec4 worldPos = vec4(aPosition + modelPos, 1.0);
 
-    gl_Position = uProjection * uView * worldPos;
+    gl_Position = uViewProj * worldPos;
 
-    ioFragPos = vec3(worldPos.xyz);
-    ioViewPos = uViewPos;
-    ioTexCoord = aTexCoord;
-    ioNormal = aNormal;
-    ioTangent = aTangent;
-    ioBitangent = aBitangent;
-    ioLightPos = uLightPos;
-    ioFragPosLightSpace = uLightViewProj * worldPos;
+    vs_out.fragPos = vec3(worldPos.xyz);
+    vs_out.cameraPos = uCameraPos;
+    vs_out.texCoord = aTexCoord;
+    vs_out.normal = aNormal;
+    vs_out.tangent = aTangent;
+    vs_out.bitangent = aBitangent;
+    vs_out.lightPos = uLightPos;
+    vs_out.fragPosLightSpace = uLightViewProj * worldPos;
 }

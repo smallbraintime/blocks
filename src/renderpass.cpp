@@ -1,95 +1,100 @@
 #include "renderpass.h"
 
-#include <QImage>
-#include <QDir>
-
 #include "renderer.h"
 #include "data.h"
 
 void BackgroundPass::init(QOpenGLFunctions_4_3_Core* funcs) {
-    if (!m_shaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/background.vert")) {
+    if (!m_shaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/skybox.vert"))
         qWarning("Failed to add vertex shader.");
-    }
-    if (!m_shaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/background.frag")) {
-        qWarning("Failed to add fragment shader.");
-    }
-    if (!m_shaderProgram.link()) {
-        qWarning("Failed to link shaders.");
-    }
 
-    m_uniformLocations.view = m_shaderProgram.uniformLocation("uView");
-    m_uniformLocations.projection = m_shaderProgram.uniformLocation("uProjection");
-    m_uniformLocations.cubeMap = m_shaderProgram.uniformLocation("uCubeMap");
+    if (!m_shaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/skybox.frag"))
+        qWarning("Failed to add fragment shader.");
+
+    if (!m_shaderProgram.link()) qWarning("Failed to link shaders.");
+
+    m_viewProjUniform = m_shaderProgram.uniformLocation("uViewProj");
 }
 
 void BackgroundPass::render(RenderContext &renderContext) {
     glDepthFunc(GL_LEQUAL);
     glDepthMask(GL_FALSE);
+
     m_shaderProgram.bind();
     renderContext.vao.bind();
-
     renderContext.cubeMap->bind(0);
-    m_shaderProgram.setUniformValue(m_uniformLocations.cubeMap, 0);
 
     QMatrix4x4 view = renderContext.camera->view();
     view.setColumn(3, QVector4D(0.0f, 0.0f, 0.0f, 1.0f));
-    m_shaderProgram.setUniformValue(m_uniformLocations.view, view);
-    m_shaderProgram.setUniformValue(m_uniformLocations.projection, renderContext.camera->projection());
+    QMatrix4x4 viewProj = renderContext.camera->projection() * view;
+
+    m_shaderProgram.setUniformValue(m_viewProjUniform, viewProj);
 
     glDrawArrays(GL_TRIANGLES, 0, 36);
 
     m_shaderProgram.release();
     renderContext.vao.release();
+
     glDepthMask(GL_TRUE);
     glDepthFunc(GL_LESS);
 }
 
 void BasePass::init(QOpenGLFunctions_4_3_Core* funcs) {
-    if (!m_shaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/base.vert")) {
+    if (!m_baseShaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/base.vert"))
         qWarning("Failed to add vertex shader.");
-    }
-    if (!m_shaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/base.frag")) {
-        qWarning("Failed to add fragment shader.");
-    }
-    if (!m_shaderProgram.link()) {
-        qWarning("Failed to link shaders.");
-    }
 
-    m_uniformLocations.view = m_shaderProgram.uniformLocation("uView");
-    m_uniformLocations.projection = m_shaderProgram.uniformLocation("uProjection");
-    m_uniformLocations.viewPos = m_shaderProgram.uniformLocation("uViewPos");
-    m_uniformLocations.normalMap = m_shaderProgram.uniformLocation("uNormalMap");
-    m_uniformLocations.texture = m_shaderProgram.uniformLocation("uTexture");
-    m_uniformLocations.depthMap = m_shaderProgram.uniformLocation("uDepthMap");
-    m_uniformLocations.lightViewProj = m_shaderProgram.uniformLocation("uLightViewProj");
-    m_uniformLocations.lightPos = m_shaderProgram.uniformLocation("uLightPos");
-    m_uniformLocations.cubeMap = m_shaderProgram.uniformLocation("uCubeMap");
+    if (!m_baseShaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/base.frag"))
+        qWarning("Failed to add fragment shader.");
+
+    if (!m_baseShaderProgram.link()) qWarning("Failed to link shaders.");
+
+    if (!m_wireframeShaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/base.vert"))
+        qWarning("Failed to add vertex shader.");
+
+    if (!m_wireframeShaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/basic.frag"))
+        qWarning("Failed to add fragment shader.");
+
+    if (!m_wireframeShaderProgram.link()) qWarning("Failed to link shaders.");
+
+    m_uniforms.viewProj = m_baseShaderProgram.uniformLocation("uViewProj");
+    m_uniforms.cameraPos = m_baseShaderProgram.uniformLocation("uCameraPos");
+    m_uniforms.lightViewProj = m_baseShaderProgram.uniformLocation("uLightViewProj");
+    m_uniforms.lightPos = m_baseShaderProgram.uniformLocation("uLightPos");
+    m_uniforms.color = m_wireframeShaderProgram.uniformLocation("uColor");
+
+    m_wireframeShaderProgram.bind();
+    m_wireframeShaderProgram.setUniformValue(m_uniforms.color, QVector3D{0.0f, 0.0f, 0.0f});
+    m_wireframeShaderProgram.release();
 }
 
 
 void BasePass::render(RenderContext &renderContext) {
+    renderBase(renderContext);
+    renderWireframe(renderContext);
+}
+
+void BasePass::renderBase(RenderContext &renderContext) {
+    glEnable(GL_MULTISAMPLE);
     glEnable(GL_CULL_FACE);
-    m_shaderProgram.bind();
+
+    m_baseShaderProgram.bind();
     renderContext.vao.bind();
     renderContext.funcs->glBindBuffer(GL_SHADER_STORAGE_BUFFER, renderContext.ssbo.bufferId());
     renderContext.funcs->glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, renderContext.ssbo.bufferId());
-
     renderContext.normalMap->bind(0);
-    m_shaderProgram.setUniformValue(m_uniformLocations.normalMap, 0);
     renderContext.depthMap->bind(1);
-    m_shaderProgram.setUniformValue(m_uniformLocations.depthMap, 1);
     renderContext.texture->bind(2);
-    m_shaderProgram.setUniformValue(m_uniformLocations.texture, 2);
     renderContext.cubeMap->bind(3);
-    m_shaderProgram.setUniformValue(m_uniformLocations.cubeMap, 3);
 
-    m_shaderProgram.setUniformValue(m_uniformLocations.view, renderContext.camera->view());
-    m_shaderProgram.setUniformValue(m_uniformLocations.projection, renderContext.camera->projection());
-    m_shaderProgram.setUniformValue(m_uniformLocations.viewPos, renderContext.camera->position());
-    m_shaderProgram.setUniformValue(m_uniformLocations.lightViewProj, renderContext.light->projection() * renderContext.light->view());
-    m_shaderProgram.setUniformValue(m_uniformLocations.lightPos, renderContext.light->position());
+    QMatrix4x4 viewProj = renderContext.camera->projection() * renderContext.camera->view();
+    QMatrix4x4 lightViewProj = renderContext.light->projection() * renderContext.light->view();
+
+    m_baseShaderProgram.setUniformValue(m_uniforms.viewProj, viewProj);
+    m_baseShaderProgram.setUniformValue(m_uniforms.cameraPos, renderContext.camera->position());
+    m_baseShaderProgram.setUniformValue(m_uniforms.lightViewProj, lightViewProj);
+    m_baseShaderProgram.setUniformValue(m_uniforms.lightPos, renderContext.light->position());
 
     renderContext.funcs->glDrawArraysInstanced(GL_TRIANGLES, 0, 36, 1000);
+
     //glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
 
     // TODO: fix this shit
@@ -105,35 +110,58 @@ void BasePass::render(RenderContext &renderContext) {
 
     renderContext.funcs->glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
     renderContext.vao.release();
-    m_shaderProgram.release();
+    m_baseShaderProgram.release();
+
     glDisable(GL_CULL_FACE);
+    glDisable(GL_MULTISAMPLE);
+}
+
+void BasePass::renderWireframe(RenderContext &renderContext) {
+    glEnable(GL_POLYGON_OFFSET_LINE);
+    glPolygonOffset(-1.0f, -1.0f);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+    m_wireframeShaderProgram.bind();
+    renderContext.vao.bind();
+    renderContext.funcs->glBindBuffer(GL_SHADER_STORAGE_BUFFER, renderContext.ssbo.bufferId());
+    renderContext.funcs->glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, renderContext.ssbo.bufferId());
+
+    QMatrix4x4 viewProj = renderContext.camera->projection() * renderContext.camera->view();
+
+    m_wireframeShaderProgram.setUniformValue(m_uniforms.viewProj, viewProj);
+
+    renderContext.funcs->glDrawArraysInstanced(GL_TRIANGLES, 0, 36, 1000);
+
+    renderContext.funcs->glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+    renderContext.vao.release();
+    m_wireframeShaderProgram.release();
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glDisable(GL_POLYGON_OFFSET_LINE);
 }
 
 void ShadowMapPass::init(QOpenGLFunctions_4_3_Core* funcs) {
-    if (!m_shaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/shadowmap.vert")) {
+    if (!m_shaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/shadowmap.vert"))
         qWarning("Failed to add vertex shader.");
-    }
-    if (!m_shaderProgram.link()) {
-        qWarning("Failed to link shaders.");
-    }
 
-    m_uniformLocations.view = m_shaderProgram.uniformLocation("uView");
-    m_uniformLocations.projection = m_shaderProgram.uniformLocation("uProjection");
+    if (!m_shaderProgram.link()) qWarning("Failed to link shaders.");
+
+    m_viewProjUniform = m_shaderProgram.uniformLocation("uViewProj");
 }
 
 void ShadowMapPass::render(RenderContext& renderContext) {
     glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+    glEnable(GL_CULL_FACE);
     glCullFace(GL_FRONT);
+
     renderContext.funcs->glBindFramebuffer(GL_FRAMEBUFFER, renderContext.fbo->handle());
     glClear(GL_DEPTH_BUFFER_BIT);
-
     m_shaderProgram.bind();
     renderContext.vao.bind();
     renderContext.funcs->glBindBuffer(GL_SHADER_STORAGE_BUFFER, renderContext.ssbo.bufferId());
     renderContext.funcs->glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, renderContext.ssbo.bufferId());
 
-    m_shaderProgram.setUniformValue(m_uniformLocations.view, renderContext.light->view());
-    m_shaderProgram.setUniformValue(m_uniformLocations.projection, renderContext.light->projection());
+    m_shaderProgram.setUniformValue(m_viewProjUniform, renderContext.light->projection() * renderContext.light->view());
 
     renderContext.funcs->glDrawArraysInstanced(GL_TRIANGLES, 0, 36, 1000);
 
@@ -141,35 +169,31 @@ void ShadowMapPass::render(RenderContext& renderContext) {
     renderContext.fbo->release();
     m_shaderProgram.release();
     renderContext.vao.release();
-    glCullFace(GL_BACK);
+
     glViewport(0, 0, renderContext.m_screenWidth, renderContext.m_screenHeight);
+    glCullFace(GL_BACK);
+    glDisable(GL_CULL_FACE);
 }
 
 void LightDepthPass::init(QOpenGLFunctions_4_3_Core* funcs) {
-    if (!m_shaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/lightdepth.vert")) {
+    if (!m_shaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/lightdepth.vert"))
         qWarning("Failed to add vertex shader.");
-    }
-    if (!m_shaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/lightdepth.frag")) {
-        qWarning("Failed to add fragment shader.");
-    }
-    if (!m_shaderProgram.link()) {
-        qWarning("Failed to link shaders.");
-    }
 
-    if (!m_vao.create()) {
-        qWarning("Failed to create vao");
-    }
+    if (!m_shaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/lightdepth.frag"))
+        qWarning("Failed to add fragment shader.");
+
+    if (!m_shaderProgram.link()) qWarning("Failed to link shaders.");
+
+    if (!m_vao.create()) qWarning("Failed to create vao");
 }
 
 void LightDepthPass::render(RenderContext &renderContext) {
-    qDebug() << renderContext.light->position() << renderContext.light->orientation().toEulerAngles();
     glDepthMask(GL_FALSE);
+
     m_shaderProgram.bind();
     m_vao.bind();
 
     renderContext.depthMap->bind(0);
-    int depthLoc = m_shaderProgram.uniformLocation("depthTexture");
-    m_shaderProgram.setUniformValue(depthLoc, 0);
 
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
@@ -180,3 +204,40 @@ void LightDepthPass::render(RenderContext &renderContext) {
     glDepthMask(GL_TRUE);
 }
 
+
+void LightPosPass::init(QOpenGLFunctions_4_3_Core* funcs) {
+    if (!m_shaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/lightpos.vert"))
+        qWarning("Failed to add vertex shader.");
+
+    if (!m_shaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/basic.frag"))
+        qWarning("Failed to add fragment shader.");
+
+    if (!m_shaderProgram.link()) qWarning("Failed to link shaders.");
+
+    m_uniforms.viewProj = m_shaderProgram.uniformLocation("uViewProj");
+    m_uniforms.lightPos = m_shaderProgram.uniformLocation("uLightPos");
+    m_uniforms.color = m_shaderProgram.uniformLocation("uColor");
+
+    m_shaderProgram.bind();
+    m_shaderProgram.setUniformValue(m_uniforms.color, QVector3D{1.0f, 1.0f, 1.0f});
+    m_shaderProgram.release();
+}
+
+void LightPosPass::render(RenderContext& renderContext) {
+    glEnable(GL_CULL_FACE);
+    glEnable(GL_MULTISAMPLE);
+
+    m_shaderProgram.bind();
+    renderContext.vao.bind();
+
+    m_shaderProgram.setUniformValue(m_uniforms.viewProj, renderContext.camera->projection() * renderContext.camera->view());
+    m_shaderProgram.setUniformValue(m_uniforms.lightPos, renderContext.light->position());
+
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+
+    m_shaderProgram.release();
+    renderContext.vao.release();
+
+    glDisable(GL_MULTISAMPLE);
+    glDisable(GL_CULL_FACE);
+}

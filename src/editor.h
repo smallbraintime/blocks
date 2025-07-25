@@ -5,7 +5,6 @@
 
 #include "renderer.h"
 #include "cameracontroller.h"
-#include "inputmanager.h"
 #include "menu.h"
 
 #define CHUNK_SIZE 1000000
@@ -20,12 +19,11 @@ protected:
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;
-    void keyPressEvent(QKeyEvent *event) override;
-    void keyReleaseEvent(QKeyEvent *event) override;
+    // void keyPressEvent(QKeyEvent *event) override;
+    // void keyReleaseEvent(QKeyEvent *event) override;
 
 private:
     BlocksRenderer* m_renderer;
-    InputManager* m_inputManager;
     Menu* m_menu;
     CameraController m_cameraController;
     QVector<QColor> m_blocks{CHUNK_SIZE};
@@ -35,9 +33,6 @@ private:
     float m_firstMouse;
     float m_lastx;
     float m_lasty;
-
-private slots:
-    void onInputUpdate(const QSet<int>& keys);
 };
 
 

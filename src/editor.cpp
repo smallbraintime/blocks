@@ -1,16 +1,10 @@
 #include "editor.h"
 
 #include <QApplication>
-#include <QMatrix4x4>
 #include <QKeyEvent>
-#include <QSharedPointer>
 #include <QVBoxLayout>
-#include <QWindow>
 
-Editor::Editor(QWidget* parent, Menu* menu) : QWidget(parent), m_menu(menu), m_camera{}, m_cameraController{&m_camera, .05f, 0.05f}, m_renderer{new BlocksRenderer(this, &m_camera, &m_pointedBlock)} {
-    m_inputManager = new InputManager(this);
-    connect(m_inputManager, &InputManager::inputUpdated, this, &Editor::onInputUpdate);
-
+Editor::Editor(QWidget* parent, Menu* menu) : QWidget(parent), m_menu(menu), m_camera({20.0f, 20.0f, 20.0f}), m_cameraController{&m_camera, .05f, 0.05f, {5.0f, 5.0f, 5.0f}, 10.0f}, m_renderer{new BlocksRenderer(this, &m_camera, &m_pointedBlock)} {
     QSurfaceFormat format;
     format.setVersion(4, 1);
     format.setProfile(QSurfaceFormat::CoreProfile);
@@ -28,30 +22,6 @@ Editor::Editor(QWidget* parent, Menu* menu) : QWidget(parent), m_menu(menu), m_c
     cursor().setPos(mapToGlobal(rect().center()));
     setMouseTracking(true);
     setAttribute(Qt::WA_InputMethodEnabled, false);
-}
-
-void Editor::keyPressEvent(QKeyEvent *event) {
-    m_inputManager->keyPressed(event);
-}
-
-void Editor::keyReleaseEvent(QKeyEvent *event) {
-    m_inputManager->keyReleased(event);
-}
-
-void Editor::onInputUpdate(const QSet<int> &keys) {
-    // m_cameraController.setCamera(m_renderer->m_renderContext.light.get());
-
-    float delta = m_deltaTime;
-    if (keys.contains(Qt::Key_Shift)) delta *= 2;
-    if (keys.contains(Qt::Key_Space)) m_cameraController.moveUp(delta);
-    if (keys.contains(Qt::Key_W)) m_cameraController.moveForward(-delta);
-    if (keys.contains(Qt::Key_S)) m_cameraController.moveForward(delta);
-    if (keys.contains(Qt::Key_A)) m_cameraController.moveRight(-delta);
-    if (keys.contains(Qt::Key_D)) m_cameraController.moveRight(delta);
-    if (keys.contains(Qt::Key_Escape)) {
-        QApplication::setOverrideCursor( QCursor( Qt::ArrowCursor ) );
-        clearFocus();
-    }
 }
 
 void Editor::mouseMoveEvent(QMouseEvent *event) {
@@ -75,8 +45,8 @@ void Editor::mouseMoveEvent(QMouseEvent *event) {
         m_lastx = xPos;
         m_lasty = yPos;
 
-        m_cameraController.yaw(xoffset);
-        m_cameraController.pitch(yoffset);
+        m_cameraController.addYaw(-xoffset);
+        m_cameraController.addPitch(yoffset);
     }
 }
 
@@ -86,10 +56,6 @@ void Editor::mousePressEvent(QMouseEvent *event) {
 }
 
 void Editor::wheelEvent(QWheelEvent *event) {
-    m_camera.setFov(m_camera.fov() - event->angleDelta().y() / 120);
-
-    if (m_camera.fov() < 1.0f)
-        m_camera.setFov(1.0f);
-    if (m_camera.fov() > 120.0f)
-        m_camera.setFov(120.0f);
+    float delta = event->angleDelta().y() / 120.0f;
+    m_cameraController.setRadius(m_cameraController.radius() - delta * 2.0f);
 }

@@ -2,8 +2,6 @@
 
 #include <QMainWindow>
 #include <QLabel>
-#include <QMainWindow>
-#include <QApplication>
 #include <QStackedWidget>
 
 #include "menu.h"

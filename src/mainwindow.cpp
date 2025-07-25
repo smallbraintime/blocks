@@ -1,9 +1,5 @@
 #include "mainwindow.h"
 
-#include <QWidget>
-#include <QFileDialog>
-#include <QWindow>
-
 MainWindow::MainWindow(QWidget *parent) {
     m_menu = new Menu();
     m_editor = new Editor();

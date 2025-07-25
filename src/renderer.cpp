@@ -3,8 +3,6 @@
 #include <QDateTime>
 #include <QRandomGenerator>
 #include <QImage>
-#include <QImageReader>
-#include <QDateTime>
 
 #include "data.h"
 
@@ -63,7 +61,7 @@ void BlocksRenderer::initializeGL() {
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
     glDepthMask(GL_TRUE);
-    glEnable(GL_MULTISAMPLE);
+    glCullFace(GL_BACK);
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
     if (!m_renderContext.ssbo.create()) {
@@ -157,18 +155,19 @@ void BlocksRenderer::initializeGL() {
     m_renderContext.light = std::make_unique<Camera>(Camera::ProjectionMode::Orthogonal);
     m_renderContext.light->setAspectRatio(1.0f);
     m_renderContext.light->setNearPlane(10.0f);
-    m_renderContext.light->setFarPlane(50.0f);
+    m_renderContext.light->setFarPlane(40.0f);
     m_renderContext.light->setFov(30.0f);
-    m_renderContext.light->setPosition({0, 30.0f, 0});
+    m_renderContext.light->setPosition({30, 30.0f, 0});
     m_renderContext.light->lookAt({5.0f, 5.0f, 0.0f});
     // m_renderContext.light->setOrientation({-63.95, -0, 0});
     // m_renderContext.light->setOrientation({0, -90.0f, 0});
 
-    m_renderPasses[0] = std::make_unique<ShadowMapPass>();
-    m_renderPasses[1] = std::make_unique<BasePass>();
-    m_renderPasses[2] = std::make_unique<BackgroundPass>();
+    m_renderPasses.push_back(std::make_unique<ShadowMapPass>());
+    m_renderPasses.push_back(std::make_unique<BasePass>());
+    m_renderPasses.push_back(std::make_unique<LightPosPass>());
+    m_renderPasses.push_back(std::make_unique<BackgroundPass>());
 
-    for (auto& pass : m_renderPasses) {
+    for (const auto& pass : m_renderPasses) {
         if (pass) pass->init(m_renderContext.funcs);
     }
 }
@@ -184,16 +183,16 @@ void BlocksRenderer::resizeGL(int w, int h) {
 void BlocksRenderer::paintGL() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    for (auto& pass : m_renderPasses) {
+    for (const auto& pass : m_renderPasses) {
         if (pass) pass->render(m_renderContext);
     }
 
-    // static float time = 0.0f;
-    // time = time + 0.016f;
-    // float z = sin(time * 0.05) * 10.0f;
-    // float x = cos(time * 0.05) * 10.0f;
-    // m_renderContext.light->setPosition({15.0f + x, 20.0f, 15.0f + z});
-    // m_renderContext.light->setPosition({5.0f + x, 30.0f, 5.0f + z});
+    static float time = 0.0f;
+    time = time + 0.016f;
+    float z = sin(time * 0.1) * 30.0f;
+    float x = cos(time * 0.1) * 30.0f;
+    m_renderContext.light->setPosition({5.0f + x, 30.0f, 5.0f + z});
+    m_renderContext.light->lookAt({5.0f, 5.0f, 5.0f});
 
     update();
 }

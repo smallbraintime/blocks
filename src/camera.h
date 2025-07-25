@@ -12,6 +12,7 @@ public:
     };
 
     Camera() = default;
+    explicit Camera(const QVector3D& position) : m_position(position) {}
     explicit Camera(ProjectionMode mode) : m_mode(mode) {}
     explicit Camera(float aspectRatio, const QVector3D &position, const QQuaternion &orientation)
         : m_aspectRatio(aspectRatio), m_position(position), m_orientation(orientation) {}

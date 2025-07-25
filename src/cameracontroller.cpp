@@ -1,28 +1,28 @@
 #include "cameracontroller.h"
 
-void CameraController::moveForward(float axis) {
-    m_camera->translate({0.0f, 0.0f, -m_speed * axis});
+void CameraController::addYaw(float delta) {
+    m_yaw += delta * m_sensitivity;
+    updateCamera();
 }
 
-void CameraController::moveRight(float axis) {
-    m_camera->translate({m_speed * axis, 0.0f, 0.0f});
+void CameraController::addPitch(float delta) {
+    m_pitch += delta * m_sensitivity;
+    m_pitch = qBound(-89.0f, m_pitch, 89.0f);
+    updateCamera();
 }
 
-void CameraController::moveUp(float axis) {
-    m_camera->translate({0.0f, m_speed * axis, 0.0f});
+void CameraController::updateCamera() {
+    if (!m_camera) return;
+
+    float yawRad = qDegreesToRadians(m_yaw);
+    float pitchRad = qDegreesToRadians(m_pitch);
+
+    QVector3D offset;
+    offset.setX(m_radius * qCos(pitchRad) * qSin(yawRad));
+    offset.setY(m_radius * qSin(pitchRad));
+    offset.setZ(m_radius * qCos(pitchRad) * qCos(yawRad));
+
+    QVector3D position = m_target + offset;
+    m_camera->setPosition(position);
+    m_camera->lookAt(m_target);
 }
-
-void CameraController::pitch(float angle) {
-    m_pitch += angle * m_sentisivity;
-
-    m_pitch = std::clamp(m_pitch, -89.0f, 89.0f);
-    m_camera->setOrientation({m_pitch, m_yaw, 0.0f});
-}
-
-void CameraController::yaw(float angle) {
-    m_yaw += angle * m_sentisivity;
-
-    m_pitch = std::clamp(m_pitch, -89.0f, 89.0f);
-    m_camera->setOrientation({m_pitch, m_yaw, 0.0f});
-}
-

@@ -32,8 +32,6 @@ set(PROJECT_SOURCES
     src/renderpass.h
     src/renderpass.cpp
     src/renderer.cpp
-    src/inputmanager.h
-    src/inputmanager.cpp
     src/data.h
 )
 

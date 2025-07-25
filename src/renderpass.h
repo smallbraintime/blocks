@@ -2,9 +2,7 @@
 
 #include <QOpenGLShaderProgram>
 #include <QOpenGLVertexArrayObject>
-#include <QOpenGLBuffer>
 #include <QOpenGLFunctions_4_3_Core>
-#include <QOpenGLTexture>
 
 class RenderContext;
 
@@ -14,6 +12,20 @@ struct RenderPass {
     virtual void render(RenderContext& sceneData) = 0;
 };
 
+class LightPosPass : public RenderPass {
+public:
+    void init(QOpenGLFunctions_4_3_Core* funcs) override;
+    void render(RenderContext& renderContext) override;
+
+private:
+    QOpenGLShaderProgram m_shaderProgram;
+    struct Uniforms {
+        int viewProj;
+        int lightPos;
+        int color;
+    } m_uniforms;
+};
+
 class BackgroundPass : public RenderPass {
 public:
     void init(QOpenGLFunctions_4_3_Core* funcs) override;
@@ -21,11 +33,7 @@ public:
 
 private:
     QOpenGLShaderProgram m_shaderProgram;
-    struct UniformLocations {
-        int view;
-        int projection;
-        int cubeMap;
-    } m_uniformLocations;
+    int m_viewProjUniform;
 };
 
 class BasePass : public RenderPass {
@@ -34,18 +42,23 @@ public:
     void render(RenderContext& renderContext) override;
 
 private:
-    QOpenGLShaderProgram m_shaderProgram;
-    struct UniformLocations {
-        int view;
-        int projection;
-        int viewPos;
+    QOpenGLShaderProgram m_baseShaderProgram;
+    QOpenGLShaderProgram m_wireframeShaderProgram;
+
+    void renderBase(RenderContext& renderContext);
+    void renderWireframe(RenderContext& renderContext);
+
+    struct Uniforms {
+        int viewProj;
+        int cameraPos;
         int normalMap;
         int texture;
         int depthMap;
         int lightViewProj;
         int lightPos;
-        int cubeMap;
-    } m_uniformLocations;
+        int skybox;
+        int color;
+    } m_uniforms;
 };
 
 class ShadowMapPass : public RenderPass {
@@ -55,10 +68,7 @@ public:
 
 private:
     QOpenGLShaderProgram m_shaderProgram;
-    struct UniformLocations {
-        int view;
-        int projection;
-    } m_uniformLocations;
+    int m_viewProjUniform;
 };
 
 class LightDepthPass : public RenderPass {
