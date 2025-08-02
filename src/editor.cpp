@@ -8,7 +8,7 @@
 #include <QMessageBox>
 #include <QTimer>
 
-Editor::Editor(QWidget* parent) : QWidget(parent), m_camera({20.0f, 20.0f, 20.0f}), m_cameraController{&m_camera, {5.0f, 5.0f, 5.0f}, 10.0f}, m_renderer{new BlocksRenderer(this, &m_camera, &m_pointedBlock)} {
+Editor::Editor(QWidget* parent) : QWidget(parent), m_camera({20.0f, 20.0f, 20.0f}), m_cameraController{&m_camera, {5.0f, 0.0f, 5.0f}, 10.0f}, m_renderer{new BlocksRenderer(this, &m_camera, &m_pointedBlock)} {
     QSurfaceFormat format;
     format.setVersion(4, 1);
     format.setProfile(QSurfaceFormat::CoreProfile);

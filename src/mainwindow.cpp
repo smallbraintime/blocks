@@ -22,6 +22,6 @@ MainWindow::MainWindow(QWidget *parent) {
 void MainWindow::openEditor() {
     if (m_mainWidgets->currentWidget() != m_editor) {
         m_mainWidgets->setCurrentWidget(m_editor);
-        m_editor->resetBlocks();
     }
+    m_editor->resetBlocks();
 }

@@ -60,7 +60,7 @@ void BlocksRenderer::paintGL() {
         if (pass) pass->render(m_renderContext);
     }
 
-    // updateLight();
+    updateLight();
 }
 
 void BlocksRenderer::setBuffer(const QVector<Color> &blocks) {
@@ -174,19 +174,19 @@ void BlocksRenderer::initCubeMap() {
 }
 
 void BlocksRenderer::initLight() {
-    m_renderContext.light = std::make_unique<Camera>(Camera::ProjectionMode::Orthogonal);
-    m_renderContext.light->setNearPlane(10.0f);
+    m_renderContext.light = std::make_unique<Camera>(Camera::ProjectionMode::Perspective);
+    m_renderContext.light->setNearPlane(5.0f);
     m_renderContext.light->setFarPlane(40.0f);
-    m_renderContext.light->setSize(30.0f);
-    m_renderContext.light->setPosition({5.0f, 30.0f, 5.0f});
-    m_renderContext.light->lookAt({5.0f, 1.0f, 5.0f});
+    m_renderContext.light->setSize(60.0f);
+    m_renderContext.light->setPosition({5.0f, 20.0f, 5.0f});
+    m_renderContext.light->lookAt({5.0f, 5.0f, 5.0f});
 }
 
 void BlocksRenderer::updateLight() {
     static float time = 0.0f;
     time = time + 0.016f;
-    float z = sin(time * 0.1) * 10.0f;
-    float x = cos(time * 0.1) * 10.0f;
-    m_renderContext.light->setPosition({5.0f + x, 30.0f, 5.0f + z});
+    float z = sin(time * 0.1) * 20.0f;
+    float x = cos(time * 0.1) * 20.0f;
+    m_renderContext.light->setPosition({5.0f + x, 20.0f, 5.0f + z});
     m_renderContext.light->lookAt({5.0f, 1.0f, 5.0f});
 }

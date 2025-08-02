@@ -55,7 +55,7 @@ constexpr float CUBE_VERTICES[] = {
 constexpr int CUBE_VERTICES_SIZE = sizeof(CUBE_VERTICES) / sizeof(float);
 
 
-constexpr unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
+constexpr unsigned int SHADOW_WIDTH = 2048, SHADOW_HEIGHT = 2048;
 
 constexpr int VECTOR_SIZE = 10;
 

@@ -49,12 +49,12 @@ void main() {
 
     float closestDepth = texture(uDepthMap, projCoords.xy).r;
     float currentDepth = projCoords.z;
-    float bias = max(0.009 * (1.0 - dot(normal, lightDir)), 0.0009);
+    float bias = max(0.001 * (1.0 - dot(normal, lightDir)), 0.0001);
     shadow = (currentDepth - bias) > closestDepth ? 1.0 : 0.0;
 
     vec2 texelSize = 1.0 / textureSize(uDepthMap, 0);
     int samples = 0;
-    int radius = 6;
+    int radius = 4;
 
     for (int x = -radius; x <= radius; ++x)
     {
