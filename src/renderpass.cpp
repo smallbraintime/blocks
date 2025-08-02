@@ -47,7 +47,7 @@ void BasePass::init(QOpenGLFunctions_4_3_Core* funcs) {
 
     if (!m_baseShaderProgram.link()) qWarning("Failed to link shaders.");
 
-    if (!m_wireframeShaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/base.vert"))
+    if (!m_wireframeShaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/basic.vert"))
         qWarning("Failed to add vertex shader.");
 
     if (!m_wireframeShaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/basic.frag"))
@@ -59,7 +59,9 @@ void BasePass::init(QOpenGLFunctions_4_3_Core* funcs) {
     m_uniforms.cameraPos = m_baseShaderProgram.uniformLocation("uCameraPos");
     m_uniforms.lightViewProj = m_baseShaderProgram.uniformLocation("uLightViewProj");
     m_uniforms.lightPos = m_baseShaderProgram.uniformLocation("uLightPos");
+
     m_uniforms.color = m_wireframeShaderProgram.uniformLocation("uColor");
+    m_uniforms.index = m_wireframeShaderProgram.uniformLocation("uIndex");
 
     m_wireframeShaderProgram.bind();
     m_wireframeShaderProgram.setUniformValue(m_uniforms.color, QVector3D{0.0f, 0.0f, 0.0f});
@@ -95,19 +97,6 @@ void BasePass::renderBase(RenderContext &renderContext) {
 
     renderContext.funcs->glDrawArraysInstanced(GL_TRIANGLES, 0, 36, 1000);
 
-    //glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
-
-    // TODO: fix this shit
-    // renderContext.pointedBlock
-    // glBindBufferRange(GL_SHADER_STORAGE_BUFFER, renderContext.ssbo.bufferId(), 0, 0, sizeof(Color));
-    // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-    // glBindBufferRange(GL_SHADER_STORAGE_BUFFER, renderContext.ssbo.bufferId(), 0, 0, sizeof(Color));
-    // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-    // glBindBufferRange(GL_SHADER_STORAGE_BUFFER, renderContext.ssbo.bufferId(), 0, 0, sizeof(Color));
-    // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
     renderContext.funcs->glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
     renderContext.vao.release();
     m_baseShaderProgram.release();
@@ -117,6 +106,10 @@ void BasePass::renderBase(RenderContext &renderContext) {
 }
 
 void BasePass::renderWireframe(RenderContext &renderContext) {
+    const int pointedBlock = *renderContext.pointedBlock;
+    if (pointedBlock == -1) return;
+
+    glEnable(GL_MULTISAMPLE);
     glEnable(GL_POLYGON_OFFSET_LINE);
     glPolygonOffset(-1.0f, -1.0f);
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -129,8 +122,9 @@ void BasePass::renderWireframe(RenderContext &renderContext) {
     QMatrix4x4 viewProj = renderContext.camera->projection() * renderContext.camera->view();
 
     m_wireframeShaderProgram.setUniformValue(m_uniforms.viewProj, viewProj);
+    m_wireframeShaderProgram.setUniformValue(m_uniforms.index, pointedBlock);
 
-    renderContext.funcs->glDrawArraysInstanced(GL_TRIANGLES, 0, 36, 1000);
+    renderContext.funcs->glDrawArraysInstanced(GL_TRIANGLES, 0, 36, 1);
 
     renderContext.funcs->glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
     renderContext.vao.release();
@@ -138,6 +132,7 @@ void BasePass::renderWireframe(RenderContext &renderContext) {
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glDisable(GL_POLYGON_OFFSET_LINE);
+    glDisable(GL_MULTISAMPLE);
 }
 
 void ShadowMapPass::init(QOpenGLFunctions_4_3_Core* funcs) {
@@ -152,7 +147,6 @@ void ShadowMapPass::init(QOpenGLFunctions_4_3_Core* funcs) {
 void ShadowMapPass::render(RenderContext& renderContext) {
     glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
     glEnable(GL_CULL_FACE);
-    glCullFace(GL_FRONT);
 
     renderContext.funcs->glBindFramebuffer(GL_FRAMEBUFFER, renderContext.fbo->handle());
     glClear(GL_DEPTH_BUFFER_BIT);
@@ -170,8 +164,7 @@ void ShadowMapPass::render(RenderContext& renderContext) {
     m_shaderProgram.release();
     renderContext.vao.release();
 
-    glViewport(0, 0, renderContext.m_screenWidth, renderContext.m_screenHeight);
-    glCullFace(GL_BACK);
+    glViewport(0, 0, renderContext.screenWidth, renderContext.screenHeight);
     glDisable(GL_CULL_FACE);
 }
 

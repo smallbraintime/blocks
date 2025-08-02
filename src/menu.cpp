@@ -2,13 +2,15 @@
 
 #include <QCoreApplication>
 
-Menu::Menu(QWidget* parent) : QMenuBar(parent) {
+Menu::Menu(Editor* editor, QWidget* parent) : QMenuBar(parent) {
     createFileMenu();
-    createEditMenu();
+    createToolsMenu();
     createHelpMenu();
     addMenu(m_fileMenu);
-    addMenu(m_editMenu);
+    addMenu(m_toolsMenu);
     addMenu(m_helpMenu);
+
+    connect(m_changeColorAction, &QAction::triggered, editor, &Editor::setColor);
 }
 
 void Menu::createFileMenu() {
@@ -26,15 +28,11 @@ void Menu::createFileMenu() {
     m_fileMenu->addActions({m_openAction, m_newAction, m_saveAction, m_exitAction});
 }
 
-void Menu::createEditMenu() {
-    m_undoAction = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::EditUndo),
-                               tr("&Undo"), this);
-    m_redoAction = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::EditRedo),
-                               tr("&Redo"), this);
-    m_modifyAction = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::DocumentProperties),
-                                tr("&Modify"), this);
-    m_editMenu = new QMenu(tr("&Edit"));
-    m_editMenu->addActions({m_undoAction, m_redoAction, m_modifyAction});
+void Menu::createToolsMenu() {
+    m_changeColorAction = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::DocumentProperties),
+                                 tr("&Change Color"), this);
+    m_toolsMenu = new QMenu(tr("&Tools"));
+    m_toolsMenu->addActions({m_changeColorAction});
 }
 
 void Menu::createHelpMenu() {

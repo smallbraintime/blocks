@@ -58,6 +58,7 @@ private:
         int lightPos;
         int skybox;
         int color;
+        int index;
     } m_uniforms;
 };
 

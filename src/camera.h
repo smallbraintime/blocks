@@ -39,12 +39,13 @@ public:
     float aspectRatio() const { return m_aspectRatio; }
     float nearPlane() const { return m_nearPlane; }
     float farPlane() const { return m_farPlane; }
+    ProjectionMode mode() const { return m_mode; }
 
 private:
     QVector3D m_position;
     QQuaternion m_orientation;
     float m_viewFactor = 45.0f; // can be treated as a fov or size depending on camera mode
-    float m_aspectRatio;
+    float m_aspectRatio = 1.0f;
     float m_nearPlane = 1.0f;
     float m_farPlane = 1000.0f;
     ProjectionMode m_mode{ProjectionMode::Perspective};

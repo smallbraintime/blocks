@@ -1,8 +1,8 @@
 #include "mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent) {
-    m_menu = new Menu();
-    m_editor = new Editor();
+    m_editor = new Editor(this);
+    m_menu = new Menu(m_editor, this);
     m_startPage = new QLabel("BLOCKS");
     m_startPage->setAlignment(Qt::AlignCenter);
 

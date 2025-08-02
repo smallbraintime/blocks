@@ -13,11 +13,10 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
 
 private:
-    QStackedWidget* m_mainWidgets;
-    Menu* m_menu;
     Editor* m_editor;
+    Menu* m_menu;
     QLabel* m_startPage;
-    QSurfaceFormat* m_surfaceFormat;
+    QStackedWidget* m_mainWidgets;
 
 public slots:
     void openEditor();

@@ -9,6 +9,7 @@
         <file alias="shadowmap.vert">resources/shaders/shadowmap.vert</file>
         <file alias="lightpos.vert">resources/shaders/lightpos.vert</file>
         <file alias="basic.frag">resources/shaders/basic.frag</file>
+        <file alias="basic.vert">resources/shaders/basic.vert</file>
     </qresource>
     <qresource prefix="/assets">
         <file alias="normal.png">resources/assets/normal.png</file>

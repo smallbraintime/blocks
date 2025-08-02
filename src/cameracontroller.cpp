@@ -1,5 +1,15 @@
 #include "cameracontroller.h"
 
+void CameraController::setRadius(float radius) {
+    m_radius = radius;
+    if (m_camera) updateCamera();
+}
+
+void CameraController::setTarget(const QVector3D &target) {
+    m_target = target;
+    if (m_camera) updateCamera();
+}
+
 void CameraController::addYaw(float delta) {
     m_yaw += delta * m_sensitivity;
     updateCamera();

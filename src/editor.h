@@ -2,37 +2,45 @@
 
 #include <QWidget>
 #include <QColor>
+#include <QVBoxLayout>
 
 #include "renderer.h"
 #include "cameracontroller.h"
-#include "menu.h"
-
-#define CHUNK_SIZE 1000000
+#include "data.h"
 
 class Editor: public QWidget {
     Q_OBJECT
 
+    enum class EditorMode {
+        Creating,
+        Deleting
+    };
+
 public:
-    explicit Editor(QWidget* parent = nullptr, Menu* menu = nullptr);
+    explicit Editor(QWidget* parent = nullptr);
+    void setColor();
 
 protected:
     void mousePressEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;
-    // void keyPressEvent(QKeyEvent *event) override;
-    // void keyReleaseEvent(QKeyEvent *event) override;
 
 private:
-    BlocksRenderer* m_renderer;
-    Menu* m_menu;
-    CameraController m_cameraController;
-    QVector<QColor> m_blocks{CHUNK_SIZE};
-    QVector3D m_pointedBlock;
     Camera m_camera;
-    float m_deltaTime = 1.0;
-    float m_firstMouse;
-    float m_lastx;
-    float m_lasty;
+    CameraController m_cameraController;
+    BlocksRenderer* m_renderer;
+    QVector<Color> m_blocks;
+    QColor m_currentColor;
+    int m_pointedBlock = -1;
+    EditorMode m_editorMode = EditorMode::Creating;
+    bool m_shouldMove{};
+    float m_firstMouse{};
+    float m_lastx{};
+    float m_lasty{};
+
+    void onGlInitialized();
+    bool pointBlock(QMouseEvent *event);
 };
 
 

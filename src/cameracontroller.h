@@ -4,30 +4,27 @@
 
 class CameraController {
 public:
-    explicit CameraController(Camera* camera, float speed, float sentisivity, const QVector3D& target, float radius)
-        : m_camera(camera), m_speed(speed), m_sensitivity(sentisivity), m_target(target), m_radius(radius) {}
+    explicit CameraController(Camera* camera, const QVector3D& target, float radius)
+        : m_camera(camera), m_target(target), m_radius(radius) { if (camera) updateCamera(); }
 
     void setCamera(Camera *camera) { m_camera = camera; }
-    void setPosition(const QVector3D& position) { if (!m_camera) m_camera->setPosition(position); };
-    void setSpeed(float speed) { m_speed = speed; }
-    void setSensitivity(float sensitivity) { m_sensitivity = sensitivity; }
-    void setRadius(float radius) { m_radius = radius; }
-    void setTarget(const QVector3D& target) { m_target = target; }
+    void setTarget(const QVector3D& target);
+    void setRadius(float radius);
     void addYaw(float delta);
     void addPitch(float delta);
+    void setSensitivity(float sensitivity) { m_sensitivity = sensitivity; }
 
-    float speed() const { return m_speed; }
-    float sensitivity() const { return m_sensitivity; }
+    const QVector3D& target() const { return m_target; }
     float radius() const { return m_radius; }
+    float sensitivity() const { return m_sensitivity; }
 
 private:
-    Camera* m_camera;
-    float m_speed;
-    float m_sensitivity;
+    Camera* m_camera{};
     QVector3D m_target;
-    float m_radius;
-    float m_pitch;
-    float m_yaw;
+    float m_radius{};
+    float m_pitch{};
+    float m_yaw{};
+    float m_sensitivity = .05f;
 
     void updateCamera();
 };

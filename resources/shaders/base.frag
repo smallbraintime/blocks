@@ -22,8 +22,8 @@ layout(binding = 3) uniform samplerCube uCubeMap;
 vec3 lightColor = vec3(1.0, 0.7, 0.5);
 float ambientStrength = 0.2;
 float diffuseStrength = 3.0;
-float specularStrength = 10.0;
-float shininess = 128.0;
+float specularStrength = 3.0;
+float shininess = 64.0;
 
 void main() {
     if (vs_in.color.a == 0.0) discard;
@@ -42,10 +42,6 @@ void main() {
     vec3 halfwayDir = normalize(lightDir + viewDir);
     float spec = pow(max(dot(normal, halfwayDir), 0.0), shininess);
     vec3 specular = specularStrength * spec * lightColor;
-
-    float rim = 1.0 - max(dot(viewDir, normal), 0.0);
-    rim = pow(rim, 2.5);
-    vec3 rimColor = vec3(0.3, 0.4, 0.6) * rim * 0.5;
 
     float shadow;
     vec3 projCoords = vs_in.fragPosLightSpace.xyz / vs_in.fragPosLightSpace.w;
@@ -73,15 +69,22 @@ void main() {
     }
     shadow /= float(samples);
 
+    vec3 I = normalize(vs_in.cameraPos - vs_in.fragPos);
+    vec3 R = reflect(-I, normal);
+
+    float cosTheta = max(dot(I, normal), 0.0);
+    vec3 F0 = vec3(0.06);
+    vec3 fresnelReflect = F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
+
+    vec3 reflectedColor = texture(uCubeMap, R).rgb;
+
     vec3 lighting = ambient + (1.0 - shadow) * (diffuse + specular);
     vec3 baseColor = vs_in.color.rgb * texture(uTexture, vs_in.texCoord).rgb;
-    vec3 result = lighting * baseColor;
 
-    vec3 I = normalize(vs_in.cameraPos - vs_in.fragPos);
-    vec3 R = reflect(I, normal);
-
-    result = result * 0.6 + texture(uCubeMap, R).rgb * (1 - 0.5);
+    vec3 result = mix(lighting * baseColor, reflectedColor, fresnelReflect);
 
     result = result / (result + vec3(1.0));
+    result = pow(result, vec3(1.0 / 2.2));
+
     oFragColor = vec4(result, 1.0);
 }
