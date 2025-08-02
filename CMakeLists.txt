@@ -22,8 +22,6 @@ set(PROJECT_SOURCES
     src/menu.cpp
     src/editor.h
     src/editor.cpp
-    src/serializer.h
-    src/serializer.cpp
     src/cameracontroller.h
     src/cameracontroller.cpp
     src/camera.h

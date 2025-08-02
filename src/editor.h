@@ -3,6 +3,7 @@
 #include <QWidget>
 #include <QColor>
 #include <QVBoxLayout>
+#include <QString>
 
 #include "renderer.h"
 #include "cameracontroller.h"
@@ -19,6 +20,9 @@ class Editor: public QWidget {
 public:
     explicit Editor(QWidget* parent = nullptr);
     void setColor();
+    bool openProject();
+    void saveProject();
+    void resetBlocks();
 
 protected:
     void mousePressEvent(QMouseEvent *event) override;
@@ -35,6 +39,7 @@ private:
     int m_pointedBlock = -1;
     EditorMode m_editorMode = EditorMode::Creating;
     bool m_shouldMove{};
+    QString m_filename;
     float m_firstMouse{};
     float m_lastx{};
     float m_lasty{};

@@ -4,6 +4,8 @@
 #include <QKeyEvent>
 #include <QVBoxLayout>
 #include <QColorDialog>
+#include <QFileDialog>
+#include <QMessageBox>
 #include <QTimer>
 
 Editor::Editor(QWidget* parent) : QWidget(parent), m_camera({20.0f, 20.0f, 20.0f}), m_cameraController{&m_camera, {5.0f, 5.0f, 5.0f}, 10.0f}, m_renderer{new BlocksRenderer(this, &m_camera, &m_pointedBlock)} {
@@ -22,6 +24,45 @@ Editor::Editor(QWidget* parent) : QWidget(parent), m_camera({20.0f, 20.0f, 20.0f
     setMouseTracking(true);
     setAttribute(Qt::WA_InputMethodEnabled, false);
 
+    resetBlocks();
+
+    connect(m_renderer, &BlocksRenderer::glInitialized, this, &Editor::onGlInitialized);
+}
+
+void Editor::setColor() {
+    m_currentColor = QColorDialog::getColor(Qt::white, this, "Choose color", QColorDialog::DontUseNativeDialog);
+}
+
+bool Editor::openProject() {
+    m_filename = QFileDialog::getOpenFileName(this, "Open .blks File", "", "BLKS Files (*.blks)");
+    if (!m_filename.isEmpty()) {
+        QFile file(m_filename);
+        if (file.open(QIODevice::ReadOnly)) {
+            file.read(reinterpret_cast<char*>(m_blocks.data()), m_blocks.size() * sizeof(Color));
+            return true;
+        } else {
+            QMessageBox::critical(this, "Error", "Failed to open the file.");
+        }
+    }
+
+    return false;
+}
+
+void Editor::saveProject() {
+    if (m_filename.isEmpty()) {
+        m_filename = QFileDialog::getSaveFileName(this, "Save As", "", "BLKS Files (*.blks)");
+        if (m_filename.isEmpty()) {
+            return;
+        }
+    }
+
+    QFile file(m_filename);
+    if (file.open(QIODevice::WriteOnly)) {
+        file.write(reinterpret_cast<char*>(m_blocks.data()), m_blocks.size() * sizeof(Color));
+    }
+}
+
+void Editor::resetBlocks() {
     m_blocks.fill({255, 255, 255, 0}, CHUNK_SIZE);
     for (size_t z = 0; z < VECTOR_SIZE; ++z) {
         for (size_t x = 0; x < VECTOR_SIZE; ++x) {
@@ -29,12 +70,6 @@ Editor::Editor(QWidget* parent) : QWidget(parent), m_camera({20.0f, 20.0f, 20.0f
             m_blocks[index].a = 1;
         }
     }
-
-    connect(m_renderer, &BlocksRenderer::glInitialized, this, &Editor::onGlInitialized);
-}
-
-void Editor::setColor() {
-    m_currentColor = QColorDialog::getColor(Qt::white, this, "Choose color", QColorDialog::DontUseNativeDialog);
 }
 
 void Editor::mouseMoveEvent(QMouseEvent *event) {
@@ -87,11 +122,9 @@ void Editor::mousePressEvent(QMouseEvent *event) {
             switch (m_editorMode) {
             case EditorMode::Creating: {
                 m_blocks[m_pointedBlock] = m_currentColor;
-                m_renderer->setBuffer(m_blocks);
             } break;
             case EditorMode::Deleting: {
                 m_blocks[m_pointedBlock].a = 0;
-                m_renderer->setBuffer(m_blocks);
             } break;
             }
         }
@@ -113,7 +146,11 @@ void Editor::wheelEvent(QWheelEvent *event) {
 }
 
 void Editor::onGlInitialized() {
-    m_renderer->setBuffer(m_blocks);
+    QTimer *timer = new QTimer(this);
+    connect(timer, &QTimer::timeout, this, [=](){
+        m_renderer->setBuffer(m_blocks);
+    });
+    timer->start(16);
 }
 
 bool Editor::pointBlock(QMouseEvent *event) {
