@@ -10,7 +10,12 @@
 
 #include "data.h"
 
-Editor::Editor(QWidget* parent) : QWidget(parent), m_camera({20.0f, 20.0f, 20.0f}), m_cameraController{&m_camera, {5.0f, 0.0f, 5.0f}, 10.0f}, m_renderer{new BlocksRenderer(this, &m_camera, &m_pointedBlock)} {
+Editor::Editor(QWidget* parent)
+    : QWidget(parent),
+    m_camera({20.0f, 20.0f, 20.0f}),
+    m_cameraController{&m_camera,{5.0f, 0.0f, 5.0f}, 10.0f},
+    m_renderer{new BlocksRenderer(this, &m_camera, &m_pointedBlock)}
+{
     QSurfaceFormat format;
     format.setVersion(4, 1);
     format.setProfile(QSurfaceFormat::CoreProfile);
@@ -273,7 +278,7 @@ bool Editor::pointBlock(QMouseEvent *event) {
                 voxelZ += stepZ;
             }
         }
-        loop:
+    loop:
 
         if (!hit && lastValidAdjacentBlock != -1) {
             m_pointedBlock = lastValidAdjacentBlock;

@@ -38,7 +38,7 @@ void Menu::createFileMenu() {
 
 void Menu::createToolsMenu() {
     m_changeColorAction = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::DocumentProperties),
-                                 tr("&Change Color"), this);
+                                      tr("&Change Color"), this);
     m_toolsMenu = new QMenu(tr("&Tools"));
 
     m_toolsMenu->addActions({m_changeColorAction});
@@ -46,7 +46,7 @@ void Menu::createToolsMenu() {
 
 void Menu::createHelpMenu() {
     m_keyMapAction = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::InputKeyboard),
-                                     tr("&Key Map"), this);
+                                 tr("&Key Map"), this);
     m_aboutAction = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::HelpAbout),
                                 tr("&About"), this);
     m_helpMenu = new QMenu(tr("&Help"));
