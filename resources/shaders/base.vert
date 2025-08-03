@@ -30,13 +30,10 @@ uniform mat4 uLightViewProj;
 uniform vec3 uLightPos;
 
 void main() {
-    if (color[gl_InstanceID].a == 0.0) {
-        gl_Position = vec4(2.0, 2.0, 2.0, 1.0);
+    if (color[gl_InstanceID].a == 0) {
+        gl_Position = vec4(999999.0, 999999.0, 999999.0, 1.0);
         return;
     }
-
-    ivec4 c = color[gl_InstanceID];
-    vs_out.color = vec4(c.r, c.g, c.b, c.a) / 255.0;
 
     int z = gl_InstanceID / (VECTOR_SIZE * VECTOR_SIZE);
     int r = gl_InstanceID % (VECTOR_SIZE * VECTOR_SIZE);
@@ -47,6 +44,8 @@ void main() {
 
     gl_Position = uViewProj * worldPos;
 
+    ivec4 c = color[gl_InstanceID];
+    vs_out.color = vec4(c.r, c.g, c.b, c.a) / 255.0;
     vs_out.fragPos = vec3(worldPos.xyz);
     vs_out.cameraPos = uCameraPos;
     vs_out.texCoord = aTexCoord;

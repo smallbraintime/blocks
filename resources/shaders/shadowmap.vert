@@ -22,5 +22,6 @@ void main(void) {
     int x = r % VECTOR_SIZE;
     vec3 modelPos = vec3(float(x) + 0.5, float(y) + 0.5, float(z) + 0.5);
     vec4 worldPos = vec4(aPosition + modelPos, 1.0);
+
     gl_Position = uViewProj * worldPos;
 }

@@ -8,6 +8,8 @@
 #include <QMessageBox>
 #include <QTimer>
 
+#include "data.h"
+
 Editor::Editor(QWidget* parent) : QWidget(parent), m_camera({20.0f, 20.0f, 20.0f}), m_cameraController{&m_camera, {5.0f, 0.0f, 5.0f}, 10.0f}, m_renderer{new BlocksRenderer(this, &m_camera, &m_pointedBlock)} {
     QSurfaceFormat format;
     format.setVersion(4, 1);
@@ -33,19 +35,16 @@ void Editor::setColor() {
     m_currentColor = QColorDialog::getColor(Qt::white, this, "Choose color", QColorDialog::DontUseNativeDialog);
 }
 
-bool Editor::openProject() {
+void Editor::openProject() {
     m_filename = QFileDialog::getOpenFileName(this, "Open .blks File", "", "BLKS Files (*.blks)");
     if (!m_filename.isEmpty()) {
         QFile file(m_filename);
         if (file.open(QIODevice::ReadOnly)) {
             file.read(reinterpret_cast<char*>(m_blocks.data()), m_blocks.size() * sizeof(Color));
-            return true;
         } else {
             QMessageBox::critical(this, "Error", "Failed to open the file.");
         }
     }
-
-    return false;
 }
 
 void Editor::saveProject() {

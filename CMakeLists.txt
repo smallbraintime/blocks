@@ -30,6 +30,7 @@ set(PROJECT_SOURCES
     src/renderpass.h
     src/renderpass.cpp
     src/renderer.cpp
+    src/utils.h
     src/data.h
 )
 

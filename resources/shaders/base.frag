@@ -19,72 +19,90 @@ layout(binding = 1) uniform sampler2D uDepthMap;
 layout(binding = 2) uniform sampler2D uTexture;
 layout(binding = 3) uniform samplerCube uCubeMap;
 
-vec3 lightColor = vec3(1.0, 0.7, 0.5);
-float ambientStrength = 0.2;
-float diffuseStrength = 3.0;
-float specularStrength = 3.0;
-float shininess = 64.0;
+const vec3 lightColor = vec3(1.0, 0.7, 0.5);
+const float ambientStrength = 0.2;
+const float diffuseStrength = 3.0;
+const float specularStrength = 3.0;
+const float shininess = 64.0;
 
-void main() {
-    if (vs_in.color.a == 0.0) discard;
+const int PCF_RADIUS = 4;
+const float PCF_RANGE = 0.005;
 
-    vec3 normalTex = texture(uNormalMap, vs_in.texCoord).rgb * 2.0 - 1.0;
-    mat3 TBN = mat3(normalize(vs_in.tangent), normalize(vs_in.bitangent), normalize(vs_in.normal));
-    vec3 normal = normalize(TBN * normalTex);
+const vec3 FRESNEL_F0 = vec3(0.04);
 
-    vec3 ambient = ambientStrength * lightColor;
-
-    vec3 lightDir = normalize(vs_in.lightPos - vs_in.fragPos);
-    float diff = max(dot(normal, lightDir), 0.0);
-    vec3 diffuse = diff * lightColor * diffuseStrength;
-
-    vec3 viewDir = normalize(vs_in.cameraPos - vs_in.fragPos);
-    vec3 halfwayDir = normalize(lightDir + viewDir);
-    float spec = pow(max(dot(normal, halfwayDir), 0.0), shininess);
-    vec3 specular = specularStrength * spec * lightColor;
-
-    float shadow;
-    vec3 projCoords = vs_in.fragPosLightSpace.xyz / vs_in.fragPosLightSpace.w;
-    projCoords = projCoords * 0.5 + 0.5;
-
-    float closestDepth = texture(uDepthMap, projCoords.xy).r;
-    float currentDepth = projCoords.z;
-    float bias = max(0.001 * (1.0 - dot(normal, lightDir)), 0.0001);
-    shadow = (currentDepth - bias) > closestDepth ? 1.0 : 0.0;
-
+void pcf(out float shadow, float bias, vec3 projCoords, float currentDepth) {
     vec2 texelSize = 1.0 / textureSize(uDepthMap, 0);
+    shadow = 0.0;
     int samples = 0;
-    int radius = 4;
 
-    for (int x = -radius; x <= radius; ++x)
-    {
-        for (int y = -radius; y <= radius; ++y)
-        {
+    for (int x = -PCF_RADIUS; x <= PCF_RADIUS; ++x) {
+        for (int y = -PCF_RADIUS; y <= PCF_RADIUS; ++y) {
             float pcfDepth = texture(uDepthMap, projCoords.xy + vec2(x, y) * texelSize).r;
-            float range = 0.01;
-            float shadowFactor = smoothstep(pcfDepth, pcfDepth + range, currentDepth - bias);
+            float shadowFactor = smoothstep(pcfDepth, pcfDepth + PCF_RANGE, currentDepth - bias);
             shadow += shadowFactor;
             samples++;
         }
     }
     shadow /= float(samples);
+}
 
-    vec3 I = normalize(vs_in.cameraPos - vs_in.fragPos);
-    vec3 R = reflect(-I, normal);
+vec3 fresnel(vec3 F0, vec3 viewDir, vec3 normal) {
+    float cosTheta = max(dot(viewDir, normal), 0.0);
+    return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
+}
 
-    float cosTheta = max(dot(I, normal), 0.0);
-    vec3 F0 = vec3(0.06);
-    vec3 fresnelReflect = F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
+vec3 gammaCorrection(vec3 color, float gamma) {
+    return pow(color, vec3(1.0 / gamma));
+}
 
-    vec3 reflectedColor = texture(uCubeMap, R).rgb;
+vec3 reinhard(vec3 color) {
+    return color / (1.0f + color);
+}
+
+void main() {
+    if (vs_in.color.a == 0.0) discard;
+
+    vec3 normalTex = texture(uNormalMap, vs_in.texCoord).rgb * 2.0 - 1.0;
+    mat3 TBN = mat3(
+        normalize(vs_in.tangent),
+        normalize(vs_in.bitangent),
+        normalize(vs_in.normal)
+    );
+    vec3 normal = normalize(TBN * normalTex);
+
+    vec3 lightDir = normalize(vs_in.lightPos - vs_in.fragPos);
+    vec3 viewDir = normalize(vs_in.cameraPos - vs_in.fragPos);
+    vec3 halfwayDir = normalize(lightDir + viewDir);
+
+    vec3 projCoords = vs_in.fragPosLightSpace.xyz / vs_in.fragPosLightSpace.w;
+    projCoords = projCoords * 0.5 + 0.5;
+
+    float currentDepth = projCoords.z;
+    float bias = max(0.001 * (1.0 - dot(normal, lightDir)), 0.0001);
+
+    float shadow;
+    pcf(shadow, bias, projCoords, currentDepth);
+
+    vec3 ambient = ambientStrength * lightColor;
+
+    float diff = max(dot(normal, lightDir), 0.0);
+    vec3 diffuse = diff * lightColor * diffuseStrength;
+
+    float spec = pow(max(dot(normal, halfwayDir), 0.0), shininess);
+    vec3 specular = specularStrength * spec * lightColor;
+
+    vec3 reflectDir = reflect(-viewDir, normal);
+    vec3 reflectedColor = texture(uCubeMap, reflectDir).rgb;
+    vec3 fresnelReflect = fresnel(FRESNEL_F0, viewDir, normal);
 
     vec3 lighting = ambient + (1.0 - shadow) * (diffuse + specular);
     vec3 baseColor = vs_in.color.rgb * texture(uTexture, vs_in.texCoord).rgb;
+    vec3 litColor = lighting * baseColor;
 
-    vec3 result = mix(lighting * baseColor, reflectedColor, fresnelReflect);
+    vec3 result = mix(litColor, reflectedColor, fresnelReflect);
 
-    result = result / (result + vec3(1.0));
-    result = pow(result, vec3(1.0 / 2.2));
+    result = reinhard(result);
+    result = gammaCorrection(result, 2.2);
 
     oFragColor = vec4(result, 1.0);
 }

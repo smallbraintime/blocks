@@ -1,7 +1,5 @@
 #pragma once
 
-#include <QColor>
-
 constexpr float CUBE_VERTICES[] = {
     -0.5f, -0.5f,  0.5f,   0.0f, 0.0f,   0.0f, 0.0f, 1.0f,    1.0f, 0.0f, 0.0f,    0.0f, 1.0f, 0.0f,
     0.5f, -0.5f,  0.5f,   1.0f, 0.0f,   0.0f, 0.0f, 1.0f,    1.0f, 0.0f, 0.0f,    0.0f, 1.0f, 0.0f,
@@ -54,21 +52,8 @@ constexpr float CUBE_VERTICES[] = {
 
 constexpr int CUBE_VERTICES_SIZE = sizeof(CUBE_VERTICES) / sizeof(float);
 
-
 constexpr unsigned int SHADOW_WIDTH = 2048, SHADOW_HEIGHT = 2048;
 
 constexpr int VECTOR_SIZE = 10;
 
 constexpr int CHUNK_SIZE = VECTOR_SIZE * VECTOR_SIZE * VECTOR_SIZE;
-
-class Color {
-public:
-    int r, g, b, a;
-    Color& operator=(const QColor& qcolor) {
-        r = qcolor.red();
-        g = qcolor.green();
-        b = qcolor.blue();
-        a = qcolor.alpha();
-        return *this;
-    }
-};

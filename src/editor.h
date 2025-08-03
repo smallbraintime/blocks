@@ -7,7 +7,7 @@
 
 #include "renderer.h"
 #include "cameracontroller.h"
-#include "data.h"
+#include "utils.h"
 
 class Editor: public QWidget {
     Q_OBJECT
@@ -20,7 +20,7 @@ class Editor: public QWidget {
 public:
     explicit Editor(QWidget* parent = nullptr);
     void setColor();
-    bool openProject();
+    void openProject();
     void saveProject();
     void resetBlocks();
 
